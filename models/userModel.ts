@@ -6,7 +6,7 @@ interface User {
   email: string
   password: string
   isAdmin: boolean
-  role: string
+  role: 'admin' | 'driver' | 'manager' | 'user'
   lineId: string
   avatar: string
 }
@@ -22,7 +22,12 @@ const userSchema = new Schema<UserDoc>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, required: true, default: false },
-    role: { type: String, required: true, default: 'user' },
+    role: { 
+      type: String, 
+      required: true, 
+      enum: ['admin', 'driver', 'manager', 'user'],
+      default: 'user' 
+    },
     lineId: { type: String },
     avatar: { type: String },
   },
