@@ -3,9 +3,9 @@ import {User} from '~/models'
 import {jwt} from '~/utils'
 
 /**
- * @api [POST] /users
- * @description: Create a new user
- * @action public
+ * @api [POST] /api/v1/users
+ * @description สร้างผู้ใช้ใหม่
+ * @action สาธารณะ
  */
 export const createUser = async (c: Context) => {
     //   Check for body
@@ -50,9 +50,9 @@ export const createUser = async (c: Context) => {
 }
 
 /**
- * @api [POST] /users/login
- * @description: Login a user
- * @action public
+ * @api [POST] /api/v1/users/login
+ * @description เข้าสู่ระบบ
+ * @action สาธารณะ
  */
 export const loginUser = async (c: Context) => {
     //   Check for body
@@ -91,9 +91,9 @@ export const loginUser = async (c: Context) => {
 }
 
 /**
- * @api [GET] /users
- * @description: Get all users
- * @action admin
+ * @api [GET] /api/v1/users
+ * @description ดึงข้อมูลผู้ใช้ทั้งหมด
+ * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const getUsers = async (c: Context) => {
     const users = await User.find().select('-password')
@@ -114,9 +114,9 @@ export const getUsers = async (c: Context) => {
 }
 
 /**
- * @api [GET] /users/:id
- * @description: Get a single user
- * @action admin
+ * @api [GET] /api/v1/users/:id
+ * @description ดึงข้อมูลผู้ใช้ตาม ID
+ * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const getUser = async (c: Context<{ params: { id: string } }>) => {
     if (c.params && !c.params?.id) {
@@ -128,9 +128,9 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
 }
 
 /**
- * @api [GET] /users/profile
- * @description: Get user profile
- * @action private
+ * @api [GET] /api/v1/users/profile
+ * @description ดึงข้อมูลโปรไฟล์ผู้ใช้
+ * @action ต้องผ่านการยืนยันตัวตน (auth)
  */
 export const getUserProfile = async (c: Context) => {
     // Get user id from token
@@ -158,9 +158,9 @@ export const getUserProfile = async (c: Context) => {
 }
 
 /**
- * @api [PUT] /users/:id
- * @description: Update a single user
- * @action public
+ * @api [PUT] /api/v1/users/:id
+ * @description อัปเดตข้อมูลผู้ใช้
+ * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const updateUser = async (c: Context<{ params: { id: string } }>) => {
     if (c.params && !c.params?.id) {
@@ -199,9 +199,9 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
 }
 
 /**
- * @api [DELETE] /users/:id
- * @description: Delete a single user
- * @action public
+ * @api [DELETE] /api/v1/users/:id
+ * @description ลบผู้ใช้
+ * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const deleteUser = async (c: Context<{ params: { id: string } }>) => {
     if (c.params && !c.params?.id) {

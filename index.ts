@@ -1,5 +1,6 @@
-import { Elysia } from 'elysia'
-import { userRoutes, productRoutes, deviceRoutes } from './routes'
+import { Elysia, t } from 'elysia'
+//
+import { userRoutes, productRoutes, deviceRoutes, orderRoutes } from './routes'
 import { error, logger } from './middlewares'
 import { connectDB } from './config'
 import { swagger } from '@elysiajs/swagger'
@@ -42,6 +43,9 @@ app.use(productRoutes)
 
 // Device Routes [api/v1/devices]
 app.use(deviceRoutes)
+
+// Order Routes [api/v1/orders]
+app.use(orderRoutes)
 
 // Start the server
 app.listen(Bun.env.PORT || 9000)

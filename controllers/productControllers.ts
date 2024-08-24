@@ -3,6 +3,11 @@ import { Product } from '~/models'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 
+/**
+ * @api [POST] /api/v1/products
+ * @description เพิ่มสินค้าใหม่
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const addProduct = async (c: Context) => {
   if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
 
@@ -41,6 +46,11 @@ export const addProduct = async (c: Context) => {
   }
 }
 
+/**
+ * @api [GET] /api/v1/products
+ * @description ดึงข้อมูลสินค้าทั้งหมด
+ * @action สาธารณะ
+ */
 export const getAllProducts = async (c: Context) => {
   const products = await Product.find()
 
@@ -57,6 +67,11 @@ export const getAllProducts = async (c: Context) => {
   }
 }
 
+/**
+ * @api [GET] /api/v1/products/:id
+ * @description ดึงข้อมูลสินค้าตาม ID
+ * @action สาธารณะ
+ */
 export const getProductById = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
@@ -78,6 +93,11 @@ export const getProductById = async (c: Context<{ params: { id: string } }>) => 
   }
 }
 
+/**
+ * @api [PUT] /api/v1/products/:id
+ * @description อัปเดตข้อมูลสินค้า
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const updateProduct = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
@@ -101,6 +121,11 @@ export const updateProduct = async (c: Context<{ params: { id: string } }>) => {
   }
 }
 
+/**
+ * @api [DELETE] /api/v1/products/:id
+ * @description ลบสินค้า
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const deleteProduct = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400

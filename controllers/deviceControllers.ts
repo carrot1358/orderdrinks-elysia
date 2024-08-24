@@ -1,6 +1,11 @@
 import { Context } from 'elysia'
 import { Device } from '~/models'
 
+/**
+ * @api [POST] /api/v1/devices
+ * @description เพิ่มอุปกรณ์ใหม่
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const addDevice = async (c: Context) => {
   if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
 
@@ -27,6 +32,11 @@ export const addDevice = async (c: Context) => {
   }
 }
 
+/**
+ * @api [GET] /api/v1/devices
+ * @description ดึงข้อมูลอุปกรณ์ทั้งหมด
+ * @action ต้องผ่านการยืนยันตัวตน (auth)
+ */
 export const getAllDevices = async (c: Context) => {
   const devices = await Device.find()
 
@@ -43,6 +53,11 @@ export const getAllDevices = async (c: Context) => {
   }
 }
 
+/**
+ * @api [GET] /api/v1/devices/:id
+ * @description ดึงข้อมูลอุปกรณ์ตาม ID
+ * @action ต้องผ่านการยืนยันตัวตน (auth)
+ */
 export const getDeviceById = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
@@ -64,6 +79,11 @@ export const getDeviceById = async (c: Context<{ params: { id: string } }>) => {
   }
 }
 
+/**
+ * @api [PUT] /api/v1/devices/:id
+ * @description อัปเดตข้อมูลอุปกรณ์
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const updateDevice = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
@@ -87,6 +107,11 @@ export const updateDevice = async (c: Context<{ params: { id: string } }>) => {
   }
 }
 
+/**
+ * @api [DELETE] /api/v1/devices/:id
+ * @description ลบอุปกรณ์
+ * @action เฉพาะผู้ดูแลระบบ (admin)
+ */
 export const deleteDevice = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
