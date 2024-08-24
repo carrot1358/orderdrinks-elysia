@@ -1,6 +1,6 @@
 import { Context } from 'elysia'
 import { Product } from '~/models'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
 /**
@@ -13,23 +13,52 @@ export const addProduct = async (c: Context) => {
 
   const { name, description, price, stock, image, isAvailable } = c.body as any
 
-  if (!image) {
+  // ตรวจสอบข้อมูลที่จำเป็น
+  if (!name || !description || !price || !stock || !image) {
     c.set.status = 400
-    throw new Error('กรุณาอัปโหลดรูปภาพสินค้า')
+    throw new Error('กรุณากรอกข้อมูลให้ครบถ้วน')
+  }
+
+  // แปลงข้อมูลเป็นตัวเลข
+  const numericPrice = Number(price)
+  const numericStock = Number(stock)
+
+  // ตรวจสอบความถูกต้องของข้อมูล
+  if (isNaN(numericPrice) || isNaN(numericStock)) {
+    c.set.status = 400
+    throw new Error('ราคาและจำนวนสินค้าต้องเป็นตัวเลข')
+  }
+
+  // สร้างไดเรกทอรีสำหรับเก็บรูปภาพ (ถ้ายังไม่มี)
+  const uploadDir = join(process.cwd(), 'image', 'product')
+  try {
+    await mkdir(uploadDir, { recursive: true })
+  } catch (error : any) {
+    if (error.code !== 'EEXIST') {
+      console.error('ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บรูปภาพได้:', error)
+      c.set.status = 500
+      throw new Error('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ')
+    }
   }
 
   // บันทึกรูปภาพ
   const imageName = `${Date.now()}-${image.name}`
-  const imagePath = join(process.cwd(), 'image', 'product', imageName)
-  await writeFile(imagePath, await image.arrayBuffer())
+  const imagePath = join(uploadDir, imageName)
+  try {
+    await writeFile(imagePath, await image.arrayBuffer())
+  } catch (error : any) {
+    console.error('ไม่สามารถบันทึกรูปภาพได้:', error)
+    c.set.status = 500
+    throw new Error('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ')
+  }
 
   const product = await Product.create({
     name,
     description,
-    price,
-    stock,
+    price: numericPrice,
+    stock: numericStock,
     imagePath: `/image/product/${imageName}`,
-    isAvailable,
+    isAvailable: isAvailable === 'true',
   })
 
   if (!product) {

@@ -1,6 +1,6 @@
 import { Context } from 'elysia'
 import { Order, Product, User } from '~/models'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
 /**
@@ -11,19 +11,41 @@ import { join } from 'path'
 export const createOrder = async (c: Context) => {
   if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
 
-  const { userId, products, methodPaid, imageSlipPaid } = c.body as any
+  const { userId, products: productsString, methodPaid, imageSlipPaid } = c.body as any
+
+  // แปลง products จาก JSON string เป็น array ของ objects
+  let products;
+  try {
+    products = JSON.parse(productsString);
+    if (!Array.isArray(products)) {
+      throw new Error('products ต้องเป็น array');
+    }
+  } catch (error) {
+    c.set.status = 400;
+    return { error: 'เกิดข้อผิดพลาดในการแปลงข้อมูล' };
+  }
+
+  // ตรวจสอบความถูกต้องของ products
+  if (!products.every(product => 
+    typeof product.productId === 'string' && 
+    typeof product.quantity === 'number' && 
+    product.quantity > 0
+  )) {
+    c.set.status = 400;
+    return { error: 'ข้อมูลสินค้าไม่ถูกต้อง' };
+  }
 
   // ตรวจสอบว่า user มีอยู่จริง
-  const user = await User.findById(userId)
+  const user = await User.findOne({ userId:userId })
   if (!user) {
     c.set.status = 404
-    throw new Error('ไม่พบผู้ใช้')
+    throw new Error('ไม่พบผู้ใช้ ID: ' + userId)
   }
 
   // คำนวณราคารวม
   let totalPrice = 0
   for (const item of products) {
-    const product = await Product.findById(item.productId)
+    const product = await Product.findOne({ productId: item.productId })
     if (!product) {
       c.set.status = 404
       throw new Error(`ไม่พบสินค้า ID: ${item.productId}`)
@@ -33,10 +55,28 @@ export const createOrder = async (c: Context) => {
 
   let slipPath = ''
   if (methodPaid === 'promptpay' && imageSlipPaid) {
+    // สร้างไดเรกทอรีสำหรับเก็บสลิป (ถ้ายังไม่มี)
+    const uploadDir = join(process.cwd(), 'image', 'slips')
+    try {
+      await mkdir(uploadDir, { recursive: true })
+    } catch (error: any) {
+      if (error.code !== 'EEXIST') {
+        console.error('ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บสลิปได้:', error)
+        c.set.status = 500
+        throw new Error('เกิดข้อผิดพลาดในการอัปโหลดสลิป')
+      }
+    }
+
     // บันทึกรูปภาพสลิป
     const slipName = `${Date.now()}-${imageSlipPaid.name}`
-    slipPath = join(process.cwd(), 'image', 'slips', slipName)
-    await writeFile(slipPath, await imageSlipPaid.arrayBuffer())
+    slipPath = join(uploadDir, slipName)
+    try {
+      await writeFile(slipPath, await imageSlipPaid.arrayBuffer())
+    } catch (error) {
+      console.error('ไม่สามารถบันทึกสลิปได้:', error)
+      c.set.status = 500
+      throw new Error('เกิดข้อผิดพลาดในการอัปโหลดสลิป')
+    }
   }
 
   const order = await Order.create({

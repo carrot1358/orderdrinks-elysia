@@ -1,6 +1,7 @@
 import { Document, Schema, model } from 'mongoose'
 
 interface Product {
+  productId: string
   name: string
   description: string
   price: number
@@ -13,6 +14,7 @@ interface ProductDoc extends Product, Document {}
 
 const productSchema = new Schema<ProductDoc>(
   {
+    productId: { type: String, unique: true , default: crypto.randomUUID()},
     name: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },

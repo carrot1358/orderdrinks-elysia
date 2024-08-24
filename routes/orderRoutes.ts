@@ -10,21 +10,15 @@ import { admin, auth } from '~/middlewares'
 const orderRoutes = (app: Elysia) => {
   app.group('/api/v1/orders', (app) =>
     app
-  
       .post('/', createOrder, {
         beforeHandle: (c) => auth(c),
         body: t.Object({
           userId: t.String(),
-          products: t.Array(
-            t.Object({
-              productId: t.String(),
-              quantity: t.Number(),
-            })
-          ),
+          products: t.String(), // Changed to String
           methodPaid: t.Union([t.Literal('cash'), t.Literal('promptpay')]),
           imageSlipPaid: t.Optional(t.File()),
         }),
-        type: 'multipart',
+        type: "multipart/form-data",
         detail: {
           tags: ['Order'],
           summary: 'สร้างคำสั่งซื้อใหม่',

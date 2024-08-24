@@ -11,18 +11,21 @@ import { admin, auth } from '~/middlewares'
 const productRoutes = (app: Elysia) => {
   app.group('/api/v1/products', (app) =>
     app
-  
+
       .post('/', addProduct, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
           name: t.String(),
           description: t.String(),
-          price: t.Number(),
-          stock: t.Number(),
-          image: t.File(),
-          isAvailable: t.Optional(t.Boolean()),
+          price: t.String(),
+          stock: t.String(),
+          image: t.File({
+            type: 'image',
+            maxSize: '10m'
+          }),
+          isAvailable: t.Optional(t.String()),
         }),
-        type: 'multipart',
+        type: "multipart/form-data",
         detail: {
           tags: ['Product'],
           summary: 'เพิ่มสินค้าใหม่',

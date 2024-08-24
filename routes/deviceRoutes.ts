@@ -15,7 +15,6 @@ const deviceRoutes = (app: Elysia) => {
       .post('/', addDevice, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
-          deviceId: t.String(),
           deviceName: t.String(),
           status: t.Optional(t.Union([t.Literal('connected'), t.Literal('disconnected')])),
           gpsStatus: t.Optional(t.Union([t.Literal('ready'), t.Literal('not_ready')])),
@@ -62,7 +61,7 @@ const deviceRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
-      
+
       .delete('/:id', deleteDevice, {
         beforeHandle: (c) => admin(c),
         detail: {

@@ -1,13 +1,13 @@
 import { Document, Schema, model } from 'mongoose'
 
 interface OrderProduct {
-  productId: Schema.Types.ObjectId
+  productId: string
   quantity: number
 }
 
 interface Order {
   orderId: string
-  userId: Schema.Types.ObjectId
+  userId: string
   products: OrderProduct[]
   totalPrice: number
   methodPaid: 'cash' | 'promptpay'
@@ -15,17 +15,23 @@ interface Order {
   imageSlipPaid?: string
   cancelOrder?: boolean
   completedOrder?: boolean
+  bottle_count?: number
+  time_completed?: string
+  latitude?: number
+  longitude?: number
+  deviceId?: string
+  bottle_image_path?: string
 }
 
 interface OrderDoc extends Order, Document {}
 
 const orderSchema = new Schema<OrderDoc>(
   {
-    orderId: { type: String, required: true, unique: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    orderId: { type: String, unique: true , default: crypto.randomUUID()},
+    userId: { type: String, required: true },
     products: [
       {
-        productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+        productId: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
@@ -35,19 +41,17 @@ const orderSchema = new Schema<OrderDoc>(
     imageSlipPaid: { type: String },
     cancelOrder: { type: Boolean, default: false },
     completedOrder: { type: Boolean, default: false },
+    bottle_count: { type: Number },
+    time_completed: { type: String },
+    latitude: { type: Number },
+    longitude: { type: Number },
+    deviceId: { type: String, unique: true , default: crypto.randomUUID(), index: true},
+    bottle_image_path: { type: String },
   },
   {
     timestamps: true,
   }
 )
-
-// สร้าง orderId แบบสุ่ม
-orderSchema.pre('save', async function (next) {
-  if (!this.orderId) {
-    this.orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase()
-  }
-  next()
-})
 
 const Order = model<OrderDoc>('Order', orderSchema)
 export default Order

@@ -22,7 +22,7 @@ const userRoutes = (app: Elysia) => {
           isAdmin: t.Optional(t.Boolean()),
           role: t.Optional(t.String()),
         }),
-        type: 'json',
+        type: "json",
         detail: {
           tags: ['User'],
           summary: 'สร้างผู้ใช้ใหม่',

@@ -1,5 +1,7 @@
 import { Elysia, t } from 'elysia';
-import { Device } from '~/models' // Added this line to import the Device model
+import { Device, Order } from '~/models'
+import { writeFile, mkdir } from 'fs/promises'
+import { join } from 'path'
 
 // WebSocket connections
 const frontendConnections = new Map();
@@ -30,45 +32,30 @@ export function setupWebSocket(app: Elysia) {
     open(ws) {
       const deviceid = ws.data.params.deviceid;
       deviceConnections.set(deviceid, ws);
-      console.log(`Device connection opened for user: ${deviceid}`);
+      console.log(`Device connection opened for device: ${deviceid}`);
     },
-    message (ws, message) {
-        const deviceid = ws.data.params.deviceid;
-        console.log(`Device message from device ${deviceid}:`);
-        if (typeof message === 'string') {
-            try {
-            const data = JSON.parse(message);
-            if (data.image && data.bottle_count && data.time && data.order_id) {
-                // ส่งข้อมูลขวดน้ำ
-                console.log(`Received image data from device ${deviceid}:`);
-                console.log(`Bottle count: ${data.bottle_count}`);
-                console.log(`Time: ${data.time}`);
-                // บันทึกรูปภาพหรือทำการประมวลผลเพิ่มเติมตามต้องการ
-            }else if(data.latitude && data.longitude){
-                // update device location
-                Device.findOne({ deviceId: deviceid }).then((device) => {
-                    if (device) {
-                        device.latitude = data.latitude;
-                        device.longitude = data.longitude;
-                        device.save();
-                        sendMessage('device', `Device ${deviceid} location updated`);
-                    }else{
-                        sendMessage('device', `Device ${deviceid} not found`);
-                        console.log(`Device ${deviceid} not found`);
-                    }
-                });
-            }
-            } catch (error) {
-            console.error(`Error processing message from device ${deviceid}:`, error);
-            }
+    message(ws, message) {
+      const deviceid = ws.data.params.deviceid;
+      console.log(`Device message from device ${deviceid}:`);
+      if (typeof message === 'object' && message !== null) {
+        try {
+          const data = message as Record<string, unknown>;
+          if ('image' in data && 'bottle_count' in data && 'time_completed' in data && 'order_id' in data) {
+            handleBottleData(deviceid, data);
+          } else if ('latitude' in data && 'longitude' in data) {
+            updateDeviceLocation(deviceid, data);
+          }
+        } catch (error) {
+          console.error(`Error processing message from device ${deviceid}:`, error);
+        }
       } else {
-        console.error(`Invalid message type from device ${deviceid}`);
+        console.error(`Invalid message type from device ${deviceid} type: ${typeof message}`);
       }
     },
     close(ws) {
       const deviceid = ws.data.params.deviceid;
       deviceConnections.delete(deviceid);
-      console.log(`Device connection closed for user: ${deviceid}`);
+      console.log(`Device connection closed for device: ${deviceid}`);
     }
   });
 
@@ -96,4 +83,65 @@ export function setupWebSocket(app: Elysia) {
   });
 
   return app;
+}
+
+async function handleBottleData(deviceid: string, data: any) {
+  try {
+    // สร้างไดเรกทอรีสำหรับเก็บรูปภาพขวด (ถ้ายังไม่มี)
+    const uploadDir = join(process.cwd(), 'image', 'bottles')
+    try {
+      await mkdir(uploadDir, { recursive: true })
+    } catch (error: any) {
+      if (error.code !== 'EEXIST') {
+        console.error('ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บรูปภาพขวดได้:', error)
+        throw new Error('เกิดข้อผิดพลาดในการสร้างไดเรกทอรีสำหรับรูปภาพขวด')
+      }
+    }
+
+    // บันทึกรูปภาพ
+    const imageName = `${Date.now()}-${deviceid}.jpg`;
+    const imagePath = join(uploadDir, imageName);
+    await writeFile(imagePath, Buffer.from(data.image, 'base64'));
+
+    // อัปเดต Order document
+    const order = await Order.findOneAndUpdate(
+      { orderId: data.order_id },
+      {
+        bottle_count: data.bottle_count,
+        time_completed: data.time_completed,
+        deviceId: deviceid,
+        bottle_image_path: `/image/bottles/${imageName}`,
+      },
+      { new: true }
+    );
+
+    if (order) {
+      console.log(`Order ${data.order_id} updated with bottle data`);
+    } else {
+      console.log(`Order ${data.order_id} not found`);
+    }
+  } catch (error) {
+    console.error('Error handling bottle data:', error);
+  }
+}
+
+async function updateDeviceLocation(deviceid: string, data: any) {
+  try {
+    const device = await Device.findOneAndUpdate(
+      { deviceId: deviceid },
+      {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      },
+      { new: true }
+    );
+
+    if (device) {
+      console.log(`Device ${deviceid} location updated`);
+    } else {
+      console.log(`Device ${deviceid} not found`);
+    }
+  } catch (error) {
+    console.error('Error updating device location:', error);
+  }
 }
