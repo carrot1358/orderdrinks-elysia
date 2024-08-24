@@ -11,6 +11,7 @@ import { admin, auth } from '~/middlewares'
 const productRoutes = (app: Elysia) => {
   app.group('/api/v1/products', (app) =>
     app
+  
       .post('/', addProduct, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -29,6 +30,7 @@ const productRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/', getAllProducts, {
         detail: {
           tags: ['Product'],
@@ -36,6 +38,7 @@ const productRoutes = (app: Elysia) => {
           description: 'ดึงข้อมูลสินค้าทั้งหมดในระบบ'
         }
       })
+
       .get('/:id', getProductById, {
         detail: {
           tags: ['Product'],
@@ -43,6 +46,7 @@ const productRoutes = (app: Elysia) => {
           description: 'ดึงข้อมูลสินค้าตาม ID ที่ระบุ'
         }
       })
+
       .put('/:id', updateProduct, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -61,6 +65,7 @@ const productRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .delete('/:id', deleteProduct, {
         beforeHandle: (c) => admin(c),
         detail: {

@@ -13,6 +13,7 @@ import { admin, auth } from '~/middlewares'
 const userRoutes = (app: Elysia) => {
   app.group('/api/v1/users', (app) =>
     app
+
       .post('/', createUser, {
         body: t.Object({
           name: t.String(),
@@ -29,6 +30,7 @@ const userRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .post('/login', loginUser, {
         body: t.Object({
           email: t.String(),
@@ -41,6 +43,7 @@ const userRoutes = (app: Elysia) => {
           description: 'เข้าสู่ระบบสำหรับผู้ใช้ที่มีอยู่แล้ว'
         }
       })
+
       .get('/', getUsers, {
         beforeHandle: (c) => admin(c),
         detail: {
@@ -50,6 +53,7 @@ const userRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/:id', getUser, {
         beforeHandle: (c) => auth(c),
         detail: {
@@ -59,6 +63,7 @@ const userRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/profile', getUserProfile, {
         beforeHandle: (c) => auth(c),
         detail: {
@@ -68,6 +73,7 @@ const userRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .put('/:id', updateUser, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -84,6 +90,7 @@ const userRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+      
       .delete('/:id', deleteUser, {
         beforeHandle: (c) => admin(c),
         detail: {

@@ -11,6 +11,7 @@ import { admin, auth } from '~/middlewares'
 const deviceRoutes = (app: Elysia) => {
   app.group('/api/v1/devices', (app) =>
     app
+
       .post('/', addDevice, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -26,6 +27,7 @@ const deviceRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/', getAllDevices, {
         beforeHandle: (c) => auth(c),
         detail: {
@@ -35,6 +37,7 @@ const deviceRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/:id', getDeviceById, {
         beforeHandle: (c) => auth(c),
         detail: {
@@ -44,6 +47,7 @@ const deviceRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .put('/:id', updateDevice, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -58,6 +62,7 @@ const deviceRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+      
       .delete('/:id', deleteDevice, {
         beforeHandle: (c) => admin(c),
         detail: {

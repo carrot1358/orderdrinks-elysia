@@ -10,6 +10,7 @@ import { admin, auth } from '~/middlewares'
 const orderRoutes = (app: Elysia) => {
   app.group('/api/v1/orders', (app) =>
     app
+  
       .post('/', createOrder, {
         beforeHandle: (c) => auth(c),
         body: t.Object({
@@ -31,6 +32,7 @@ const orderRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/', getOrders, {
         beforeHandle: (c) => admin(c),
         detail: {
@@ -40,6 +42,7 @@ const orderRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .get('/:id', getOrderById, {
         beforeHandle: (c) => auth(c),
         detail: {
@@ -49,6 +52,7 @@ const orderRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }]
         }
       })
+
       .put('/:id/status', updateOrderStatus, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
