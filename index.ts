@@ -46,10 +46,13 @@ app.use(deviceRoutes)
 // Start the server
 app.listen(Bun.env.PORT || 9000)
 
-const hostname = app.server?.hostname || 'localhost'
+const hostname = Bun.env.HOSTNAME || 'yourdomain.com'
 const port = app.server?.port || 9000
-const url = `http://${hostname}:${port}`
+const protocol = Bun.env.NODE_ENV === 'production' ? 'https' : 'http'
+const url = `${protocol}://${hostname}${port !== 80 && port !== 443 ? `:${port}` : ''}`
 
 console.log(
   `🚀 Server is running at \u001b]8;;${url}\u001b\\${url}\u001b]8;;\u001b\\`
 )
+console.log(` Swagger: ${url}/swagger`);
+
