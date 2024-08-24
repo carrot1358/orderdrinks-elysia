@@ -1,10 +1,9 @@
 import { Elysia } from 'elysia'
-//
 import { userRoutes, productRoutes, deviceRoutes } from './routes'
 import { error, logger } from './middlewares'
 import { connectDB } from './config'
 import { swagger } from '@elysiajs/swagger'
-
+import { setupWebSocket } from './utils/websocket'
 
 // Create Elysia instance
 const app = new Elysia()
@@ -29,6 +28,8 @@ app.use(swagger({
 app.use(logger())
 app.use(error())
 
+// Setup WebSocket
+setupWebSocket(app)
 
 // Root Routes
 app.get('/', () => 'Welcome to our API')
@@ -42,7 +43,6 @@ app.use(productRoutes)
 // Device Routes [api/v1/devices]
 app.use(deviceRoutes)
 
-
 // Start the server
 app.listen(Bun.env.PORT || 9000)
 
@@ -50,9 +50,10 @@ const hostname = Bun.env.HOSTNAME || 'yourdomain.com'
 const port = app.server?.port || 9000
 const protocol = Bun.env.NODE_ENV === 'production' ? 'https' : 'http'
 const url = `${protocol}://${hostname}${port !== 80 && port !== 443 ? `:${port}` : ''}`
+const wsUrl = `ws://${hostname}:${port}`
 
 console.log(
   `🚀 Server is running at \u001b]8;;${url}\u001b\\${url}\u001b]8;;\u001b\\`
 )
 console.log(` Swagger: ${url}/swagger`);
-
+console.log(` Websocket: ${wsUrl}/ws`);

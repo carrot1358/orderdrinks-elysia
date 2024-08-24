@@ -1,6 +1,7 @@
 import { Document, Schema, model } from 'mongoose'
 
 interface User {
+  userId: string
   name: string
   email: string
   password: string
@@ -16,6 +17,7 @@ interface UserDoc extends User, Document {
 
 const userSchema = new Schema<UserDoc>(
   {
+    userId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -45,6 +47,14 @@ userSchema.pre('save', async function (next) {
     algorithm: 'bcrypt',
     cost: 4, // number between 4-31
   })
+})
+
+// random userId
+userSchema.pre('save', async function (next) {
+  if (!this.userId) {
+    this.userId = crypto.randomUUID()
+  }
+  next()
 })
 
 const User = model<UserDoc>('User', userSchema)
