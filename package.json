@@ -1,0 +1,24 @@
+{
+  "name": "order-drinks-elysia",
+  "author": {
+    "name": "Mehedi Hasan",
+    "email": "admin@promehedi.com",
+    "url": "https://promehedi.com"
+  },
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun run --watch index.ts"
+  },
+  "dependencies": {
+    "@elysiajs/swagger": "^1.1.1",
+    "elysia": "^1.1.7",
+    "jose": "^4.15.4",
+    "mongoose": "^7.4.5",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "index.ts"
+}
