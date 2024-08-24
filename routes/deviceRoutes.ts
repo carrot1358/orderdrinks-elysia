@@ -20,19 +20,28 @@ const deviceRoutes = (app: Elysia) => {
           gpsStatus: t.Optional(t.Union([t.Literal('ready'), t.Literal('not_ready')])),
         }),
         detail: {
-          tags: ['Device']
+          tags: ['Device'],
+          summary: 'เพิ่มอุปกรณ์ใหม่',
+          description: 'เพิ่มอุปกรณ์ใหม่เข้าสู่ระบบ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
       .get('/', getAllDevices, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['Device']
+          tags: ['Device'],
+          summary: 'ดึงข้อมูลอุปกรณ์ทั้งหมด',
+          description: 'ดึงข้อมูลอุปกรณ์ทั้งหมดในระบบ',
+          security: [{ bearerAuth: [] }]
         }
       })
       .get('/:id', getDeviceById, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['Device']
+          tags: ['Device'],
+          summary: 'ดึงข้อมูลอุปกรณ์ตาม ID',
+          description: 'ดึงข้อมูลอุปกรณ์ตาม ID ที่ระบุ',
+          security: [{ bearerAuth: [] }]
         }
       })
       .put('/:id', updateDevice, {
@@ -43,13 +52,19 @@ const deviceRoutes = (app: Elysia) => {
           gpsStatus: t.Optional(t.Union([t.Literal('ready'), t.Literal('not_ready')])),
         }),
         detail: {
-          tags: ['Device']
+          tags: ['Device'],
+          summary: 'อัปเดตข้อมูลอุปกรณ์',
+          description: 'อัปเดตข้อมูลอุปกรณ์ตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
       .delete('/:id', deleteDevice, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['Device']
+          tags: ['Device'],
+          summary: 'ลบอุปกรณ์',
+          description: 'ลบอุปกรณ์ตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
   )

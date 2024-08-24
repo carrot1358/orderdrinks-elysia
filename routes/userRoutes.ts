@@ -23,11 +23,12 @@ const userRoutes = (app: Elysia) => {
         }),
         type: 'json',
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'สร้างผู้ใช้ใหม่',
+          description: 'สร้างผู้ใช้ใหม่ในระบบ',
+          security: [{ bearerAuth: [] }]
         }
       })
-
-      // Login a user
       .post('/login', loginUser, {
         body: t.Object({
           email: t.String(),
@@ -35,47 +36,61 @@ const userRoutes = (app: Elysia) => {
         }),
         type: 'json',
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'เข้าสู่ระบบ',
+          description: 'เข้าสู่ระบบสำหรับผู้ใช้ที่มีอยู่แล้ว'
         }
       })
-
-      // Get all users
       .get('/', getUsers, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'ดึงข้อมูลผู้ใช้ทั้งหมด',
+          description: 'ดึงข้อมูลผู้ใช้ทั้งหมดในระบบ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
-
-      // Get a single user
       .get('/:id', getUser, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'ดึงข้อมูลผู้ใช้ตาม ID',
+          description: 'ดึงข้อมูลผู้ใช้ตาม ID ที่ระบุ',
+          security: [{ bearerAuth: [] }]
         }
       })
-
-      // Get user profile
       .get('/profile', getUserProfile, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'ดึงข้อมูลโปรไฟล์ผู้ใช้',
+          description: 'ดึงข้อมูลโปรไฟล์ของผู้ใช้ที่เข้าสู่ระบบ',
+          security: [{ bearerAuth: [] }]
         }
       })
-
-      // Update a single user
       .put('/:id', updateUser, {
         beforeHandle: (c) => admin(c),
+        body: t.Object({
+          name: t.Optional(t.String()),
+          email: t.Optional(t.String()),
+          password: t.Optional(t.String()),
+          isAdmin: t.Optional(t.Boolean()),
+          role: t.Optional(t.String()),
+        }),
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'อัปเดตข้อมูลผู้ใช้',
+          description: 'อัปเดตข้อมูลผู้ใช้ตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
-
-      // Delete a single user
       .delete('/:id', deleteUser, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['User']
+          tags: ['User'],
+          summary: 'ลบผู้ใช้',
+          description: 'ลบผู้ใช้ตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
   )

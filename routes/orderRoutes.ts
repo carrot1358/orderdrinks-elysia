@@ -25,19 +25,28 @@ const orderRoutes = (app: Elysia) => {
         }),
         type: 'multipart',
         detail: {
-          tags: ['Order']
+          tags: ['Order'],
+          summary: 'สร้างคำสั่งซื้อใหม่',
+          description: 'สร้างคำสั่งซื้อใหม่ในระบบ',
+          security: [{ bearerAuth: [] }]
         }
       })
       .get('/', getOrders, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['Order']
+          tags: ['Order'],
+          summary: 'ดึงข้อมูลคำสั่งซื้อทั้งหมด',
+          description: 'ดึงข้อมูลคำสั่งซื้อทั้งหมดในระบบ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
       .get('/:id', getOrderById, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['Order']
+          tags: ['Order'],
+          summary: 'ดึงข้อมูลคำสั่งซื้อตาม ID',
+          description: 'ดึงข้อมูลคำสั่งซื้อตาม ID ที่ระบุ',
+          security: [{ bearerAuth: [] }]
         }
       })
       .put('/:id/status', updateOrderStatus, {
@@ -46,7 +55,10 @@ const orderRoutes = (app: Elysia) => {
           statusPaid: t.Union([t.Literal('paid'), t.Literal('not_paid')]),
         }),
         detail: {
-          tags: ['Order']
+          tags: ['Order'],
+          summary: 'อัปเดตสถานะการชำระเงินของคำสั่งซื้อ',
+          description: 'อัปเดตสถานะการชำระเงินของคำสั่งซื้อตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          security: [{ bearerAuth: [] }]
         }
       })
   )

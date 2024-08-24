@@ -22,8 +22,18 @@ app.use(swagger({
     tags: [
       { name: 'User', description: 'User endpoints' },
       { name: 'Product', description: 'Product endpoints' },
-      { name: 'Device', description: 'Device endpoints' }
-    ]
+      { name: 'Device', description: 'Device endpoints' },
+      { name: 'Order', description: 'Order endpoints' }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    }
   }
 }))
 app.use(logger())
