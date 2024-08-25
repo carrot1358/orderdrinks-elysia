@@ -55,12 +55,12 @@ const productRoutes = (app: Elysia) => {
         body: t.Object({
           name: t.Optional(t.String()),
           description: t.Optional(t.String()),
-          price: t.Optional(t.Number()),
-          stock: t.Optional(t.Number()),
+          price: t.Optional(t.String()),
+          stock: t.Optional(t.String()),
           image: t.Optional(t.File()),
           isAvailable: t.Optional(t.Boolean()),
         }),
-        type: 'multipart',
+        type: 'multipart/form-data',
         detail: {
           tags: ['Product'],
           summary: 'อัปเดตข้อมูลสินค้า',

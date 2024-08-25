@@ -14,11 +14,11 @@ interface ProductDoc extends Product, Document {}
 
 const productSchema = new Schema<ProductDoc>(
   {
-    productId: { type: String, unique: true , default: crypto.randomUUID()},
+    productId: { type: String, unique: true},
     name: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
-    stock: { type: Number, required: true, min: 0 },
+    stock: { type: Number, required: true, min: -1 },
     imagePath: { type: String, required: true },
     isAvailable: { type: Boolean, default: true },
   },

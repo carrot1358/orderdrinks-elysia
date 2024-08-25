@@ -1,7 +1,8 @@
 import { Context } from 'elysia'
 import { Product } from '~/models'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises' // เพิ่มการนำเข้า unlink
 import { join } from 'path'
+import crypto from 'crypto' // เพิ่มการนำเข้า crypto
 
 /**
  * @api [POST] /api/v1/products
@@ -11,7 +12,7 @@ import { join } from 'path'
 export const addProduct = async (c: Context) => {
   if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
 
-  const { name, description, price, stock, image, isAvailable } = c.body as any
+  const { name, description, price, stock, image, isAvailable } = c.body as { name: string, description: string, price: number, stock: number, image: any, isAvailable: boolean } // เปลี่ยนเป็น type ที่ถูกต้อง
 
   // ตรวจสอบข้อมูลที่จำเป็น
   if (!name || !description || !price || !stock || !image) {
@@ -29,6 +30,9 @@ export const addProduct = async (c: Context) => {
     throw new Error('ราคาและจำนวนสินค้าต้องเป็นตัวเลข')
   }
 
+  // สุ่มสร้าง productId
+  const productId = crypto.randomUUID()
+
   // สร้างไดเรกทอรีสำหรับเก็บรูปภาพ (ถ้ายังไม่มี)
   const uploadDir = join(process.cwd(), 'image', 'product')
   try {
@@ -42,10 +46,10 @@ export const addProduct = async (c: Context) => {
   }
 
   // บันทึกรูปภาพ
-  const imageName = `${Date.now()}-${image.name}`
+  const imageName = `${productId}.jpg`
   const imagePath = join(uploadDir, imageName)
   try {
-    await writeFile(imagePath, await image.arrayBuffer())
+    await writeFile(imagePath, Buffer.from(await image.arrayBuffer())) // แก้ไขการแปลง arrayBuffer เป็น Buffer
   } catch (error : any) {
     console.error('ไม่สามารถบันทึกรูปภาพได้:', error)
     c.set.status = 500
@@ -53,12 +57,13 @@ export const addProduct = async (c: Context) => {
   }
 
   const product = await Product.create({
+    productId,
     name,
     description,
     price: numericPrice,
     stock: numericStock,
     imagePath: `/image/product/${imageName}`,
-    isAvailable: isAvailable === 'true',
+    isAvailable: stock > 0 || stock === -1 ? true : false,
   })
 
   if (!product) {
@@ -107,7 +112,7 @@ export const getProductById = async (c: Context<{ params: { id: string } }>) => 
     throw new Error('ไม่ได้ระบุ ID สินค้า')
   }
 
-  const product = await Product.findById(c.params.id)
+  const product = await Product.findOne({productId: c.params.id})
 
   if (!product) {
     c.set.status = 404
@@ -135,11 +140,21 @@ export const updateProduct = async (c: Context<{ params: { id: string } }>) => {
 
   if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
 
-  const product = await Product.findByIdAndUpdate(c.params.id, c.body, { new: true })
+  const { name, description, price, stock, image, isAvailable } = c.body as any
+
+  const product = await Product.findOneAndUpdate({productId: c.params.id}, c.body, { new: true })
 
   if (!product) {
     c.set.status = 404
     throw new Error('ไม่พบสินค้า')
+  }
+
+  // อัปเดตรูปภาพ
+  if (image) {
+    const uploadDir = join(process.cwd(), 'image', 'product') // เพิ่มการประกาศ uploadDir
+    const imageName = `${product.productId}.jpg`
+    const imagePath = join(uploadDir, imageName)
+    await writeFile(imagePath, await image.arrayBuffer())
   }
 
   return {
@@ -149,7 +164,6 @@ export const updateProduct = async (c: Context<{ params: { id: string } }>) => {
     message: 'อัปเดตสินค้าสำเร็จ',
   }
 }
-
 /**
  * @api [DELETE] /api/v1/products/:id
  * @description ลบสินค้า
@@ -161,12 +175,16 @@ export const deleteProduct = async (c: Context<{ params: { id: string } }>) => {
     throw new Error('ไม่ได้ระบุ ID สินค้า')
   }
 
-  const product = await Product.findByIdAndDelete(c.params.id)
+  const product = await Product.findOneAndDelete({productId: c.params.id}) // แก้ไขการลบสินค้า
 
   if (!product) {
     c.set.status = 404
     throw new Error('ไม่พบสินค้า')
   }
+
+  // ลบรูปภาพ
+  const imagePath = join(process.cwd(), 'image', 'product', `${c.params.id}.jpg`)
+  await unlink(imagePath)
 
   return {
     status: c.set.status,
