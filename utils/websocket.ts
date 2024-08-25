@@ -18,7 +18,17 @@ export function setupWebSocket(app: Elysia) {
     message(ws, message) {
       const userid = ws.data.params.userid;
       console.log(`Frontend message from user ${userid}:`, message);
-      // ทำการประมวลผลข้อความที่ได้รับจาก frontend
+      
+      if (typeof message === 'object' && message !== null) {
+        const data = message as Record<string, unknown>;
+        if (data.sendto === 'device' && typeof data.body === 'object') {
+          // ส่งข้อความไปยังอุปกรณ์ทั้งหมด
+          deviceConnections.forEach((deviceWs) => {
+            deviceWs.send(JSON.stringify(data.body));
+          });
+          console.log(`ส่งข้อความไปยังอุปกรณ์ทั้งหมด:`, data.body);
+        }
+      }
     },
     close(ws) {
       const userid = ws.data.params.userid;
@@ -99,7 +109,7 @@ async function handleBottleData(deviceid: string, data: any) {
     }
 
     // บันทึกรูปภาพ
-    const imageName = `${Date.now()}-${deviceid}.jpg`;
+    const imageName = `${data.order_id}.jpg`;
     const imagePath = join(uploadDir, imageName);
     await writeFile(imagePath, Buffer.from(data.image, 'base64'));
 
