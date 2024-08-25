@@ -17,7 +17,6 @@ const userRoutes = (app: Elysia) => {
       .post('/', createUser, {
         body: t.Object({
           name: t.String(),
-          email: t.String(),
           phone: t.String(),
           password: t.String(),
           isAdmin: t.Optional(t.Boolean()),
@@ -34,7 +33,7 @@ const userRoutes = (app: Elysia) => {
 
       .post('/login', loginUser, {
         body: t.Object({
-          email: t.String(),
+          phone: t.String(),
           password: t.String(),
         }),
         type: 'json',

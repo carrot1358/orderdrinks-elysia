@@ -13,7 +13,7 @@ declare global {
   }
 
   type LoginBody = {
-    email: string
+    phone: string
     password: string
   }
 

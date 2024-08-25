@@ -14,7 +14,7 @@ const orderRoutes = (app: Elysia) => {
         beforeHandle: (c) => auth(c),
         body: t.Object({
           userId: t.String(),
-          products: t.String(), // Changed to String
+          products: t.String(),
           methodPaid: t.Union([t.Literal('cash'), t.Literal('promptpay')]),
           imageSlipPaid: t.Optional(t.File()),
         }),

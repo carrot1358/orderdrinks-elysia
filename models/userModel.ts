@@ -21,21 +21,21 @@ interface UserDoc extends User, Document {
 
 const userSchema = new Schema<UserDoc>(
   {
-    userId: { type: String, unique: true, required: true },
-    name: { type: String, required: true },
-    email: { type: String, unique: true },
+    userId: { type: String,unique: true},
+    phone: { type: String ,required: true},
     password: { type: String, required: true },
-    isAdmin: { type: Boolean, required: true, default: false },
+    name: { type: String },
+    email: { type: String },
+    isAdmin: { type: Boolean, default: false },
     role: { 
       type: String, 
       required: true, 
       enum: ['admin', 'driver', 'manager', 'user'],
       default: 'user' 
     },
-    lineId: { type: String ,unique: true},
+    lineId: { type: String },
     avatar: { type: String },
     address: { type: String },
-    phone: { type: String ,required: true},
     lng: { type: Number },
     lat: { type: Number },
 

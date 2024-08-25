@@ -19,10 +19,7 @@ const productRoutes = (app: Elysia) => {
           description: t.String(),
           price: t.String(),
           stock: t.String(),
-          image: t.File({
-            type: 'image',
-            maxSize: '10m'
-          }),
+          image: t.File(),
           isAvailable: t.Optional(t.String()),
         }),
         type: "multipart/form-data",
