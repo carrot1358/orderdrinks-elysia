@@ -7,6 +7,8 @@ import { writeFile, mkdir } from 'fs/promises'
 
 interface DecodedToken {
   userId: string;
+  name: string;
+  email: string;
   isAdmin: boolean;
   role: string;
 }
@@ -337,5 +339,15 @@ export const deleteUser = async (c: Context<{ params: { id: string } }>) => {
         throw new Error('No id provided')
     }
 
-    return `Delete user with id ${c.params.id}`
+    // ลบผู้ใช้
+    const user = await User.findOne({userId: c.params.id})
+    if(!user) throw new Error('User not found')
+
+    await user.deleteOne()
+
+    return {
+        status: c.set.status,
+        success: true,
+        message: 'User deleted successfully',
+    }
 }
