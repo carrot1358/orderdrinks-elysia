@@ -24,9 +24,9 @@ export function setupWebSocket(app: Elysia) {
         if (data.sendto === 'device' && typeof data.body === 'object') {
           // ส่งข้อความไปยังอุปกรณ์ทั้งหมด
           deviceConnections.forEach((deviceWs) => {
-            deviceWs.send(JSON.stringify(data.body));
+            deviceWs.send(JSON.stringify(message));
           });
-          console.log(`ส่งข้อความไปยังอุปกรณ์ทั้งหมด:`, data.body);
+          console.log(`ส่งข้อความไปยังอุปกรณ์ทั้งหมด:`, message);
         }
       }
     },
@@ -49,17 +49,25 @@ export function setupWebSocket(app: Elysia) {
       console.log(`Device message from device ${deviceid}:`);
       if (typeof message === 'object' && message !== null) {
         try {
-          const data = message as Record<string, unknown>;
-          if ('image' in data && 'bottle_count' in data && 'time_completed' in data && 'order_id' in data) {
-            handleBottleData(deviceid, data);
-          } else if ('latitude' in data && 'longitude' in data) {
-            updateDeviceLocation(deviceid, data);
+          const payload = message as Record<string, unknown>;
+          if (payload.sendto === 'backend' && typeof payload.body === 'object') {
+            const data = payload.body as Record<string, unknown>;
+            
+            if ('order_id' in data && 'bottle_count' in data && 'time_completed' in data && 'image' in data) {
+              handleBottleData(deviceid, data);
+            } else if ('gpsStatus' in data && 'latitude' in data && 'longitude' in data && 'deviceId' in data) {
+              updateDeviceLocation(deviceid, data);
+            } else {
+              console.log(`ไม่รู้จักประเภทข้อมูลจากอุปกรณ์ ${deviceid}:`, data);
+            }
+          } else {
+            console.log(`ข้อความไม่ได้ส่งถึง backend หรือไม่มี body จากอุปกรณ์ ${deviceid}:`, payload);
           }
         } catch (error) {
-          console.error(`Error processing message from device ${deviceid}:`, error);
+          console.error(`เกิดข้อผิดพลาดในการประมวลผลข้อความจากอุปกรณ์ ${deviceid}:`, error);
         }
       } else {
-        console.error(`Invalid message type from device ${deviceid} type: ${typeof message}`);
+        console.error(`ประเภทข้อความไม่ถูกต้องจากอุปกรณ์ ${deviceid} ประเภท: ${typeof message}`);
       }
     },
     close(ws) {
@@ -109,9 +117,19 @@ async function handleBottleData(deviceid: string, data: any) {
     }
 
     // บันทึกรูปภาพ
-    const imageName = `${data.order_id}.jpg`;
+    const timestamp = Date.now();
+    const fileExtension = data.image.match(/^data:image\/(\w+);base64,/)?.[1] || 'jpg';
+    const imageName = `${data.order_id}.${fileExtension}`;
     const imagePath = join(uploadDir, imageName);
-    await writeFile(imagePath, Buffer.from(data.image, 'base64'));
+
+    try {
+      const imageData = data.image.replace(/^data:image\/\w+;base64,/, '');
+      await writeFile(imagePath, Buffer.from(imageData, 'base64'));
+      console.log(`บันทึกรูปภาพสำเร็จ: ${imagePath}`);
+    } catch (error) {
+      console.error('เกิดข้อผิดพลาดในการบันทึกรูปภาพ:', error);
+      throw new Error('ไม่สามารถบันทึกรูปภาพได้');
+    }
 
     // อัปเดต Order document
     const order = await Order.findOneAndUpdate(
