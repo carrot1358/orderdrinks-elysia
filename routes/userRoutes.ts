@@ -18,6 +18,7 @@ const userRoutes = (app: Elysia) => {
         body: t.Object({
           name: t.String(),
           email: t.String(),
+          phone: t.String(),
           password: t.String(),
           isAdmin: t.Optional(t.Boolean()),
           role: t.Optional(t.String()),
@@ -75,14 +76,20 @@ const userRoutes = (app: Elysia) => {
       })
 
       .put('/:id', updateUser, {
-        beforeHandle: (c) => admin(c),
+        beforeHandle: (c) => auth(c),
         body: t.Object({
           name: t.Optional(t.String()),
           email: t.Optional(t.String()),
           password: t.Optional(t.String()),
           isAdmin: t.Optional(t.Boolean()),
           role: t.Optional(t.String()),
+          phone: t.Optional(t.String()),
+          address: t.Optional(t.String()),
+          avatar: t.Optional(t.File()),
+          lng: t.Optional(t.Number()),
+          lat: t.Optional(t.Number()),
         }),
+        type: "multipart/form-data",
         detail: {
           tags: ['User'],
           summary: 'อัปเดตข้อมูลผู้ใช้',

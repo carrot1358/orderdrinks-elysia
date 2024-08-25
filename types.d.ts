@@ -6,10 +6,10 @@ import { Context } from 'elysia'
 declare global {
   type RegBody = {
     name: string
-    email: string
     password: string
     isAdmin?: boolean
     role?: string
+    phone: string
   }
 
   type LoginBody = {
@@ -17,5 +17,16 @@ declare global {
     password: string
   }
 
-  type UpdateBody = {} & Partial<RegBody>
+  type UpdateBody = {
+    name: string
+    password: string
+    phone: string
+    address: string
+    avatar: string
+    lng: number
+    lat: number
+    role: string
+    isAdmin: boolean
+    email: string
+  }
 }

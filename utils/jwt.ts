@@ -8,7 +8,7 @@ type JWT = {
 }
 
 export const sign = async ({ data, exp = '7d' }: JWT) =>
-  await new jose.SignJWT(data)
+  await new jose.SignJWT({ data })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(exp)

@@ -5,6 +5,10 @@ interface User {
   name: string
   email: string
   password: string
+  address: string
+  phone: string
+  lng: number
+  lat: number
   isAdmin: boolean
   role: 'admin' | 'driver' | 'manager' | 'user'
   lineId: string
@@ -17,9 +21,9 @@ interface UserDoc extends User, Document {
 
 const userSchema = new Schema<UserDoc>(
   {
-    userId: { type: String, unique: true , default: crypto.randomUUID()},
+    userId: { type: String, unique: true, required: true },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, required: true, default: false },
     role: { 
@@ -28,8 +32,13 @@ const userSchema = new Schema<UserDoc>(
       enum: ['admin', 'driver', 'manager', 'user'],
       default: 'user' 
     },
-    lineId: { type: String },
+    lineId: { type: String ,unique: true},
     avatar: { type: String },
+    address: { type: String },
+    phone: { type: String ,required: true},
+    lng: { type: Number },
+    lat: { type: Number },
+
   },
   {
     timestamps: true,
