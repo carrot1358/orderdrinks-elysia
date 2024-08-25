@@ -3,6 +3,12 @@ import { User } from '~/models'
 import { jwt } from '~/utils'
 import { swagger } from '@elysiajs/swagger'
 
+interface DecodedToken {
+  data: {
+    userId: string;
+  }
+}
+
 /**
  * @name auth
  * @description Middleware to protect routes with JWT
@@ -12,10 +18,10 @@ export const auth: any = async (c: Context) => {
   if (c.headers.authorization && c.headers.authorization.startsWith('Bearer')) {
     try {
       token = c.headers.authorization.split(' ')[1]
-      const decoded = await jwt.verify(token)
-      const user = await User.findById(decoded.id)
+      const decoded = await jwt.verify(token) as unknown as DecodedToken
+      const user = await User.findOne({userId: decoded.data.userId})
 
-      c.request.headers.set('userId', user?._id.toString())
+      c.request.headers.set('userId', user?.userId ?? '')
       c.request.headers.set('isAdmin', user?.isAdmin ? 'true' : 'false')
     } catch (error) {
       c.set.status = 401
