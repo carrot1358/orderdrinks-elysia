@@ -2,8 +2,12 @@
 
 ```
 PORT=9000
-MONGO_URI=mongodb://localhost:27017/order-drinks
+MONGO_URI=mongodb://localhost:27017/orderdrinks
 JWT_SECRET=secret
 JWT_EXPIRE=7d
-HOSTNAME=localhost
+HOSTNAME=orderdrinks.webhop.me
+
+# SlipOk
+BRANCH_ID =
+API_KEY =
 ```

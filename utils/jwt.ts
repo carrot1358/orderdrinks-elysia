@@ -17,7 +17,20 @@ export const sign = async ({ data, exp = Bun.env.JWT_EXPIRE || "7d" }: JWT) =>
 export const verify = async (jwt: string) =>
   (await jose.jwtVerify(jwt, secret)).payload;
 
+export const getUserIdFromToken = async (authorizationHeader: string): Promise<string> => {
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer")) {
+    throw new Error("ไม่พบ token");
+  }
+
+  const token = authorizationHeader.split(" ")[1];
+  const decodedToken = await jwt.verify(token) as {data: DecodedToken};
+
+  return decodedToken.data.userId;
+}
+
 export const jwt = {
   sign,
   verify,
+  getUserIdFromToken,
 };
+

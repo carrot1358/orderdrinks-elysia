@@ -4,6 +4,7 @@ import {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  checkSlip
 } from '~/controllers'
 import { admin, auth } from '~/middlewares'
 
@@ -13,7 +14,6 @@ const orderRoutes = (app: Elysia) => {
       .post('/', createOrder, {
         beforeHandle: (c) => auth(c),
         body: t.Object({
-          userId: t.String(),
           products: t.String(),
           methodPaid: t.Union([t.Literal('cash'), t.Literal('promptpay')]),
           imageSlipPaid: t.Optional(t.File()),
@@ -23,6 +23,21 @@ const orderRoutes = (app: Elysia) => {
           tags: ['Order'],
           summary: 'สร้างคำสั่งซื้อใหม่',
           description: 'สร้างคำสั่งซื้อใหม่ในระบบ',
+          security: [{ bearerAuth: [] }]
+        }
+      })
+
+      .post('/check_slip', checkSlip, {
+        beforeHandle: (c) => auth(c),
+        body: t.Object({
+          orderId: t.String(),
+          slip: t.File(),
+        }),
+        type: "multipart/form-data",
+        detail: {
+          tags: ['Order'],
+          summary: 'ตรวจสอบสลิปการชำระเงิน',
+          description: 'ตรวจสอบสลิปการชำระเงิน',
           security: [{ bearerAuth: [] }]
         }
       })

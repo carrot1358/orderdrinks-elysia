@@ -29,4 +29,18 @@ declare global {
     isAdmin: boolean
     email: string
   }
+
+  type DecodedToken = {
+    userId: string
+    name: string
+    phone: string
+    isAdmin: boolean
+    role: string
+  }
+
+  type FileUpload = {
+    name: string;
+    size: number;
+    arrayBuffer(): Promise<ArrayBuffer>;
+  }
 }

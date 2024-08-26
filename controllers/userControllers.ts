@@ -5,21 +5,6 @@ import { randomUUID } from "crypto";
 import { join } from "path";
 import { writeFile, mkdir } from "fs/promises";
 
-interface DecodedToken {
-  userId: string;
-  name: string;
-  email: string;
-  phone: string;
-  isAdmin: boolean;
-  role: string;
-}
-
-interface FileUpload {
-  name: string;
-  size: number;
-  arrayBuffer(): Promise<ArrayBuffer>;
-}
-
 /**
  * @api [POST] /api/v1/users
  * @description สร้างผู้ใช้ใหม่
@@ -57,7 +42,13 @@ export const createUser = async (c: Context) => {
 
   // Generate token
   const accessToken = await jwt.sign({
-    data: { userId: _user.userId, isAdmin: _user.isAdmin, role: _user.role },
+    data: {
+      userId: _user.userId,
+      name: _user.name,
+      phone: _user.phone,
+      isAdmin: _user.isAdmin,
+      role: _user.role,
+    },
   });
 
   // Return success response
