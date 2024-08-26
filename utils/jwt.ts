@@ -1,23 +1,23 @@
-import * as jose from 'jose'
+import * as jose from "jose";
 
-const secret = new TextEncoder().encode(Bun.env.JWT_SECRET || 'secret')
+const secret = new TextEncoder().encode(Bun.env.JWT_SECRET || "secret");
 
 type JWT = {
-  data: jose.JWTPayload
-  exp?: string
-}
+  data: jose.JWTPayload;
+  exp?: string;
+};
 
-export const sign = async ({ data, exp = '7d' }: JWT) =>
+export const sign = async ({ data, exp = Bun.env.JWT_EXPIRE || "7d" }: JWT) =>
   await new jose.SignJWT({ data })
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(exp)
-    .sign(secret)
+    .sign(secret);
 
 export const verify = async (jwt: string) =>
-  (await jose.jwtVerify(jwt, secret)).payload
+  (await jose.jwtVerify(jwt, secret)).payload;
 
 export const jwt = {
   sign,
   verify,
-}
+};

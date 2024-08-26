@@ -2,7 +2,8 @@
 
 ```
 PORT=9000
-MONGO_URI=mongodb://localhost:27017/bun-hono-rest-api
+MONGO_URI=mongodb://localhost:27017/order-drinks
 JWT_SECRET=secret
-HOSTNAME=orderdrinks.webhop.me
+JWT_EXPIRE=7d
+HOSTNAME=localhost
 ```
