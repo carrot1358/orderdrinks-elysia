@@ -1,9 +1,9 @@
-import {Context} from 'elysia'
-import {User} from '~/models'
-import {jwt} from '~/utils'
-import { randomUUID } from 'crypto'
-import { join } from 'path'
-import { writeFile, mkdir } from 'fs/promises'
+import { Context } from "elysia";
+import { User } from "~/models";
+import { jwt } from "~/utils";
+import { randomUUID } from "crypto";
+import { join } from "path";
+import { writeFile, mkdir } from "fs/promises";
 
 interface DecodedToken {
   userId: string;
@@ -15,9 +15,9 @@ interface DecodedToken {
 }
 
 interface FileUpload {
-    name: string;
-    size: number;
-    arrayBuffer(): Promise<ArrayBuffer>;
+  name: string;
+  size: number;
+  arrayBuffer(): Promise<ArrayBuffer>;
 }
 
 /**
@@ -26,49 +26,49 @@ interface FileUpload {
  * @action สาธารณะ
  */
 export const createUser = async (c: Context) => {
-    //   Check for body
-    if (!c.body) throw new Error('No body provided')
+  //   Check for body
+  if (!c.body) throw new Error("No body provided");
 
-    const {name, password, isAdmin, role, phone} = c.body as RegBody
+  const { name, password, isAdmin, role, phone } = c.body as RegBody;
 
-    const phoneExists = await User.findOne({phone})
-    if (phoneExists) {
-        c.set.status = 400
-        throw new Error('Phone number already exists!')
-    }
+  const phoneExists = await User.findOne({ phone });
+  if (phoneExists) {
+    c.set.status = 400;
+    throw new Error("Phone number already exists!");
+  }
 
-    // Generate a unique userId
-    const userId = randomUUID()
+  // Generate a unique userId
+  const userId = randomUUID();
 
-    // Create user
-    const _user = await User.create({
-        userId,
-        name,
-        password,
-        phone,
-        isAdmin,
-        role: role || 'user',
-    })
+  // Create user
+  const _user = await User.create({
+    userId,
+    name,
+    password,
+    phone,
+    isAdmin,
+    role: role || "user",
+  });
 
-    if (!_user) {
-        c.set.status = 400
-        throw new Error('Invalid user data!')
-    }
+  if (!_user) {
+    c.set.status = 400;
+    throw new Error("Invalid user data!");
+  }
 
-    // Generate token
-    const accessToken = await jwt.sign({
-        data: {userId: _user.userId, isAdmin: _user.isAdmin, role: _user.role},
-    })
+  // Generate token
+  const accessToken = await jwt.sign({
+    data: { userId: _user.userId, isAdmin: _user.isAdmin, role: _user.role },
+  });
 
-    // Return success response
-    c.set.status = 201
-    return {
-        status: c.set.status,
-        success: true,
-        data: {accessToken},
-        message: 'User created successfully',
-    }
-}
+  // Return success response
+  c.set.status = 201;
+  return {
+    status: c.set.status,
+    success: true,
+    data: { accessToken },
+    message: "User created successfully",
+  };
+};
 
 /**
  * @api [POST] /api/v1/users/login
@@ -76,40 +76,40 @@ export const createUser = async (c: Context) => {
  * @action สาธารณะ
  */
 export const loginUser = async (c: Context) => {
-    //   Check for body
-    if (!c.body) throw new Error('No body provided')
+  //   Check for body
+  if (!c.body) throw new Error("No body provided");
 
-    const {phone, password} = c.body as LoginBody
+  const { phone, password } = c.body as LoginBody;
 
-    if (!phone || !password) throw new Error('Invalid phone or password!')
+  if (!phone || !password) throw new Error("Invalid phone or password!");
 
-    // Check for user
-    const user = await User.findOne({phone})
-    if (!user) {
-        c.set.status = 401
-        throw new Error('Invalid phone or password!')
-    }
+  // Check for user
+  const user = await User.findOne({ phone });
+  if (!user) {
+    c.set.status = 401;
+    throw new Error("Invalid phone or password!");
+  }
 
-    // Check for password
-    const isMatch = await user.mathPassword(password)
-    if (!isMatch) {
-        c.set.status = 401
-        throw new Error('Invalid phone or password!')
-    }
+  // Check for password
+  const isMatch = await user.mathPassword(password);
+  if (!isMatch) {
+    c.set.status = 401;
+    throw new Error("Invalid phone or password!");
+  }
 
-    // Generate token
-    const accessToken = await jwt.sign({
-        data: {userId: user.userId, isAdmin: user.isAdmin, role: user.role},
-    })
+  // Generate token
+  const accessToken = await jwt.sign({
+    data: { userId: user.userId, isAdmin: user.isAdmin, role: user.role },
+  });
 
-    // Return success response
-    return {
-        status: c.set.status,
-        success: true,
-        data: {accessToken},
-        message: 'User logged in successfully',
-    }
-}
+  // Return success response
+  return {
+    status: c.set.status,
+    success: true,
+    data: { accessToken },
+    message: "User logged in successfully",
+  };
+};
 
 /**
  * @api [GET] /api/v1/users
@@ -117,22 +117,22 @@ export const loginUser = async (c: Context) => {
  * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const getUsers = async (c: Context) => {
-    const users = await User.find().select('-password')
+  const users = await User.find().select("-password");
 
-    // Check for users
-    if (!users || users.length === 0) {
-        c.set.status = 404
-        throw new Error('No users found!')
-    }
+  // Check for users
+  if (!users || users.length === 0) {
+    c.set.status = 404;
+    throw new Error("No users found!");
+  }
 
-    // Return success response
-    return {
-        status: c.set.status,
-        success: true,
-        data: users,
-        message: 'Users fetched successfully',
-    }
-}
+  // Return success response
+  return {
+    status: c.set.status,
+    success: true,
+    data: users,
+    message: "Users fetched successfully",
+  };
+};
 
 /**
  * @api [GET] /api/v1/users/:id
@@ -140,49 +140,52 @@ export const getUsers = async (c: Context) => {
  * @action เฉพาะผู้ดูแลระบบ (admin) หรือผู้ใช้ที่ร้องขอเอง
  */
 export const getUser = async (c: Context<{ params: { id: string } }>) => {
-    if (!c.params?.id) {
-        c.set.status = 400
-        throw new Error('ไม่ได้ระบุ ID')
-    }
+  if (!c.params?.id) {
+    c.set.status = 400;
+    throw new Error("ไม่ได้ระบุ ID");
+  }
 
-    // ดึง token จาก header
-    let token
-    if (c.headers.authorization && c.headers.authorization.startsWith('Bearer')) {
-        token = c.headers.authorization.split(' ')[1]
-    }
+  // ดึง token จาก header
+  let token;
+  if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
+    token = c.headers.authorization.split(" ")[1];
+  }
 
-    if (!token) {
-        c.set.status = 401
-        throw new Error('ไม่พบ token')
-    }
+  if (!token) {
+    c.set.status = 401;
+    throw new Error("ไม่พบ token");
+  }
 
-    // ถอดรหัส token เพื่อดึง userId
-    const decoded = await jwt.verify(token) as { sub: string, data: DecodedToken }
-    console.log("decoded", decoded)
-    const requestingUserId = decoded.sub
+  // ถอดรหัส token เพื่อดึง userId
+  const decoded = (await jwt.verify(token)) as {
+    sub: string;
+    data: DecodedToken;
+  };
+  console.log("decoded", decoded);
+  const requestingUserId = decoded.sub;
 
-    // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
-    const user = await User.findOne({userId: c.params.id}).select('-password')
-    console.log("user", user)
+  // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+  const user = await User.findOne({ userId: c.params.id }).select("-password");
+  console.log("user", user);
 
-    if (!user) {
-        c.set.status = 404
-        throw new Error('ไม่พบผู้ใช้')
-    }
+  if (!user) {
+    c.set.status = 404;
+    throw new Error("ไม่พบผู้ใช้");
+  }
 
-    // ตรวจสอบว่าผู้ใช้ที่ร้องขอเป็นเจ้าของข้อมูลหรือเป็นผู้ดูแลระบบ
-    if (requestingUserId !== user.userId && !decoded.data.isAdmin) {
-        c.set.status = 403
-        throw new Error('ไม่มีสิทธิ์เข้าถึงข้อมูลนี้')
-    }
+  // ตรวจสอบว่าผู้ใช้ที่ร้องขอเป็นเจ้าของข้อมูลหรือเป็นผู้ดูแลระบบ
+  if (requestingUserId !== user.userId && !decoded.data.isAdmin) {
+    c.set.status = 403;
+    throw new Error("ไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
+  }
 
-    return {
-        status: c.set.status,
-        success: true,
-        data: user,
-        message: 'ดึงข้อมูลผู้ใช้สำเร็จ',
-    }
-}
+  return {
+    status: c.set.status,
+    success: true,
+    data: user,
+    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
+  };
+};
 
 /**
  * @api [GET] /api/v1/users/profile
@@ -190,29 +193,29 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
  * @action ต้องผ่านการยืนยันตัวตน (auth)
  */
 export const getUserProfile = async (c: Context) => {
-    // Get user id from token
-    let token, userId
-    if (c.headers.authorization && c.headers.authorization.startsWith('Bearer')) {
-        token = c.headers.authorization.split(' ')[1]
-        const decoded = await jwt.verify(token) as { data: DecodedToken }
-        userId = decoded.data.userId
-    }
+  // Get user id from token
+  let token, userId;
+  if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
+    token = c.headers.authorization.split(" ")[1];
+    const decoded = (await jwt.verify(token)) as { data: DecodedToken };
+    userId = decoded.data.userId;
+  }
 
-    // Check for user
-    const user = await User.findOne({userId: userId}).select('-password')
+  // Check for user
+  const user = await User.findOne({ userId: userId }).select("-password");
 
-    if (!user) {
-        c.set.status = 404
-        throw new Error('User not found!')
-    }
+  if (!user) {
+    c.set.status = 404;
+    throw new Error("User not found!");
+  }
 
-    return {
-        status: c.set.status,
-        success: true,
-        data: user,
-        message: 'Profile fetched successfully',
-    }
-}
+  return {
+    status: c.set.status,
+    success: true,
+    data: user,
+    message: "Profile fetched successfully",
+  };
+};
 
 /**
  * @api [PUT] /api/v1/users/:id
@@ -220,114 +223,136 @@ export const getUserProfile = async (c: Context) => {
  * @action เเฉพาะผู้ดูแลระบบ (admin) หรือผู้ใช้ที่ร้องขอเอง
  */
 export const updateUser = async (c: Context<{ params: { id: string } }>) => {
+  // ดึง token จาก header
+  var token;
+  if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
+    token = c.headers.authorization.split(" ")[1];
+  }
 
-    // ดึง token จาก header
-    var token
-    if (c.headers.authorization && c.headers.authorization.startsWith('Bearer')) {
-        token = c.headers.authorization.split(' ')[1]
+  if (c.params && !c.params?.id) {
+    c.set.status = 400;
+    throw new Error("ไม่ได้ระบุ ID");
+  }
+
+  //   เช็คว่ามีข้อมูลหรือไม่
+  if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
+
+  const {
+    name,
+    password,
+    email,
+    phone,
+    address,
+    avatar,
+    role,
+    isAdmin,
+    lng,
+    lat,
+  } = c.body as UpdateBody;
+
+  // ตรวจสอบว่ามี token หรือไม่
+  if (!token) {
+    c.set.status = 401;
+    throw new Error("ไม่พบ token");
+  }
+
+  // ตรวจสอบว่ามีสิทธิ์หรือไม่
+  const decoded = (await jwt.verify(token)) as { data: DecodedToken };
+  const requestingUserId = decoded.data.userId;
+  const requestingUser = await User.findOne({ userId: requestingUserId });
+  if (
+    !requestingUser ||
+    (requestingUser.role !== "admin" && requestingUser.userId !== c.params.id)
+  ) {
+    c.set.status = 403;
+    throw new Error("ไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
+  }
+
+  // เช็คผู้ใช้ว่ามีอยู่หรือไม่
+  const user = await User.findOne({ userId: c.params.id });
+  if (!user) {
+    c.set.status = 404;
+    throw new Error("ไม่พบผู้ใช้");
+  }
+
+  // อัปเดตข้อมูลผู้ใช้
+  user.name = name || user.name;
+  user.email = email || user.email;
+  user.address = address || user.address;
+
+  if (password) {
+    user.password = password;
+  }
+  // เช็คว่ามีเบอร์มือถือนี้ในระบบหรือไม่
+  const phoneExists = await User.findOne({ phone });
+  if (phoneExists) {
+    if (phoneExists.userId !== user.userId) {
+      c.set.status = 400;
+      throw new Error("เบอร์มือถือนี้มีอยู่ในระบบแล้ว");
+    }
+  } else {
+    user.phone = phone || user.phone;
+  }
+
+  if (role && isAdmin) {
+    if (requestingUser.role !== "admin") {
+      c.set.status = 403;
+      throw new Error(
+        "ไม่มีสิทธิ์เข้าถึงข้อมูล isAdmin หรือ role ของผู้ใช้นี้"
+      );
+    } else {
+      user.role = role as "admin" | "driver" | "manager" | "user";
+      user.isAdmin = isAdmin;
+    }
+  }
+
+  if (lng && lat) {
+    user.lng = lng;
+    user.lat = lat;
+  }
+
+  // จัดการกับไฟล์ avatar
+  if (avatar && typeof avatar === "object" && "size" in avatar) {
+    const fileUpload = avatar as FileUpload;
+    const uploadDir = join(process.cwd(), "image", "avatars");
+    try {
+      await mkdir(uploadDir, { recursive: true });
+    } catch (error: any) {
+      if (error.code !== "EEXIST") {
+        console.error("ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บ avatar ได้:", error);
+        throw new Error("เกิดข้อผิดพลาดในการอัปโหลด avatar");
+      }
     }
 
-    if (c.params && !c.params?.id) {
-        c.set.status = 400
-        throw new Error('ไม่ได้ระบุ ID')
+    const fileExtension = fileUpload.name.split(".").pop();
+    const fileName = `${user.userId}.${fileExtension}`;
+    const filePath = join(uploadDir, fileName);
+
+    try {
+      const buffer = Buffer.from(await fileUpload.arrayBuffer());
+      await writeFile(filePath, buffer);
+      user.avatar = `/image/avatars/${fileName}`;
+    } catch (error) {
+      console.error("ไม่สามารถบันทึกไฟล์ avatar ได้:", error);
+      throw new Error("เกิดข้อผิดพลาดในการอัปโหลด avatar");
     }
+  }
 
-    //   เช็คว่ามีข้อมูลหรือไม่
-    if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
+  const updatedUser = await user.save();
 
-    const {name, password, email, phone, address, avatar, role, isAdmin, lng, lat} = c.body as UpdateBody
+  if (!updatedUser) {
+    c.set.status = 400;
+    throw new Error("ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้");
+  }
 
-    // ตรวจสอบว่ามี token หรือไม่
-    if (!token) {
-        c.set.status = 401
-        throw new Error('ไม่พบ token')
-    }
-
-    // ตรวจสอบว่ามีสิทธิ์หรือไม่
-    const decoded = await jwt.verify(token) as { data: DecodedToken }
-    const requestingUserId = decoded.data.userId
-    const requestingUser = await User.findOne({userId: requestingUserId})
-    if(!requestingUser || requestingUser.role !== 'admin' && requestingUser.userId !== c.params.id){
-        c.set.status = 403
-        throw new Error('ไม่มีสิทธิ์เข้าถึงข้อมูลนี้')
-    }
-
-    // เช็คผู้ใช้ว่ามีอยู่หรือไม่
-    const user = await User.findOne({ userId: c.params.id })
-    if (!user) {
-        c.set.status = 404
-        throw new Error('ไม่พบผู้ใช้')
-    }
-
-    // อัปเดตข้อมูลผู้ใช้
-    user.name = name || user.name
-    user.email = email || user.email
-    if (password) {
-        user.password = password
-    }
-    user.phone = phone || user.phone
-    user.address = address || user.address
-    
-    if(role && isAdmin){
-        if(requestingUser.role !== 'admin'){
-            c.set.status = 403
-            throw new Error('ไม่มีสิทธิ์เข้าถึงข้อมูล isAdmin หรือ role ของผู้ใช้นี้')
-        }else{
-            user.role = role as "admin" | "driver" | "manager" | "user"
-            user.isAdmin = isAdmin
-        }
-    }
-    
-    if(lng && lat){
-        user.lng = lng
-        user.lat = lat
-    }
-
-
-   
-
-    // จัดการกับไฟล์ avatar
-    if (avatar && typeof avatar === 'object' && 'size' in avatar) {
-        const fileUpload = avatar as FileUpload;
-        const uploadDir = join(process.cwd(), 'image', 'avatars')
-        try {
-            await mkdir(uploadDir, { recursive: true })
-        } catch (error: any) {
-            if (error.code !== 'EEXIST') {
-                console.error('ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บ avatar ได้:', error)
-                throw new Error('เกิดข้อผิดพลาดในการอัปโหลด avatar')
-            }
-        }
-
-        const fileExtension = fileUpload.name.split('.').pop()
-        const fileName = `${user.userId}.${fileExtension}`
-        const filePath = join(uploadDir, fileName)
-
-        try {
-            const buffer = Buffer.from(await fileUpload.arrayBuffer())
-            await writeFile(filePath, buffer)
-            user.avatar = `/image/avatars/${fileName}`
-        } catch (error) {
-            console.error('ไม่สามารถบันทึกไฟล์ avatar ได้:', error)
-            throw new Error('เกิดข้อผิดพลาดในการอัปโหลด avatar')
-        }
-    }
-
-    const updatedUser = await user.save()
-
-    if (!updatedUser) {
-        c.set.status = 400
-        throw new Error('ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้')
-    }
-
-    // Return success response
-    return {
-        status: c.set.status,
-        success: true,
-        data: updatedUser,
-        message: 'อัปเดตข้อมูลผู้ใช้สำเร็จ',
-    }
-}
+  // Return success response
+  return {
+    status: c.set.status,
+    success: true,
+    data: updatedUser,
+    message: "อัปเดตข้อมูลผู้ใช้สำเร็จ",
+  };
+};
 
 /**
  * @api [DELETE] /api/v1/users/:id
@@ -335,20 +360,20 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
  * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const deleteUser = async (c: Context<{ params: { id: string } }>) => {
-    if (c.params && !c.params?.id) {
-        c.set.status = 400
-        throw new Error('No id provided')
-    }
+  if (c.params && !c.params?.id) {
+    c.set.status = 400;
+    throw new Error("ไม่ได้ระบุ ID");
+  }
 
-    // ลบผู้ใช้
-    const user = await User.findOne({userId: c.params.id})
-    if(!user) throw new Error('User not found')
+  // ลบผู้ใช้
+  const user = await User.findOne({ userId: c.params.id });
+  if (!user) throw new Error("ไม่พบผู้ใช้");
 
-    await user.deleteOne()
+  await user.deleteOne();
 
-    return {
-        status: c.set.status,
-        success: true,
-        message: 'User deleted successfully',
-    }
-}
+  return {
+    status: c.set.status,
+    success: true,
+    message: "ลบผู้ใช้สำเร็จ",
+  };
+};
