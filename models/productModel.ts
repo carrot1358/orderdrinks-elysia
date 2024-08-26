@@ -1,21 +1,21 @@
-import { Document, Schema, model } from 'mongoose'
+import { Document, Schema, model } from "mongoose";
 
 interface Product {
-  productId: string
-  name: string
-  description: string
-  price: number
-  stock: number
-  imagePath: string
-  isAvailable: boolean
+  productId: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  imagePath: string;
+  isAvailable: boolean;
 }
 
 interface ProductDoc extends Product, Document {}
 
 const productSchema = new Schema<ProductDoc>(
   {
-    productId: { type: String, unique: true},
-    name: { type: String, required: true },
+    productId: { type: String, unique: true },
+    name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
     stock: { type: Number, required: true, min: -1 },
@@ -25,7 +25,7 @@ const productSchema = new Schema<ProductDoc>(
   {
     timestamps: true,
   }
-)
+);
 
-const Product = model<ProductDoc>('Product', productSchema)
-export default Product
+const Product = model<ProductDoc>("Product", productSchema);
+export default Product;
