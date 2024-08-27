@@ -19,10 +19,10 @@ const userRoutes = (app: Elysia) => {
           name: t.String(),
           phone: t.String(),
           password: t.String(),
-          isAdmin: t.Optional(t.Boolean()),
+          isAdmin: t.Optional(t.String()),
           role: t.Optional(t.String()),
         }),
-        type: "json",
+        type: "formdata",
         detail: {
           tags: ["User"],
           summary: "สร้างผู้ใช้ใหม่",
@@ -36,7 +36,7 @@ const userRoutes = (app: Elysia) => {
           phone: t.String(),
           password: t.String(),
         }),
-        type: "json",
+        type: "formdata",
         detail: {
           tags: ["User"],
           summary: "เข้าสู่ระบบ",
