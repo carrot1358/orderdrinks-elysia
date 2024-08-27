@@ -45,7 +45,7 @@ const orderSchema = new Schema<OrderDoc>(
     time_completed: { type: String },
     latitude: { type: Number },
     longitude: { type: Number },
-    deviceId: { type: String, unique: true},
+    deviceId: { type: String},
     bottle_image_path: { type: String },
   },
   {
