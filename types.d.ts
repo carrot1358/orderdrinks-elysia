@@ -8,7 +8,7 @@ declare global {
   type RegBody = {
     name: string
     password: string
-    isAdmin?: boolean
+    isAdmin?: string
     role?: string
     phone: string
   }
