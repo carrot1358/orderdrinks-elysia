@@ -2,6 +2,7 @@ export {}
 
 import { jwt } from '@elysiajs/jwt'
 import { Context } from 'elysia'
+import { ObjectId } from 'mongoose'
 
 declare global {
   type RegBody = {
@@ -31,6 +32,7 @@ declare global {
   }
 
   type DecodedToken = {
+    _id: ObjectId
     userId: string
     name: string
     phone: string
