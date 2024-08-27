@@ -31,7 +31,7 @@ export const createUser = async (c: Context) => {
     name,
     password,
     phone,
-    isAdmin,
+    isAdmin: isAdmin === "true" ? true : false,
     role: role || "user",
   });
 
@@ -144,7 +144,6 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
 
   // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
   const user = await User.findOne({ userId: c.params.id }).select("-password");
-  console.log("user", user);
 
   if (!user) {
     c.set.status = 404;
