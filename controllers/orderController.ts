@@ -124,6 +124,7 @@ export const checkSlip = async (c: Context) => {
       const formData = new FormData();
       formData.append('files', fs.createReadStream(filePath));
       formData.append('log', 'true');
+      formData.append('amount', '3');
 
       // ส่งข้อมูลสลิปไปเช็คใน SlipOk
       try {
@@ -134,33 +135,46 @@ export const checkSlip = async (c: Context) => {
           }
         });
 
-        console.log('สถานะการตอบกลับ:', SlipOk_res.status);
-        console.log('ข้อมูลการตอบกลับ:', SlipOk_res.data);
-
-        return {
-          status: c.set.status,
-          success: true,
-          data: SlipOk_res.data,
-          message: 'บันทึกสลิปเรียบร้อยแล้ว',
-        };
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('ข้อความข้อผิดพลาด:', error.response?.data);
+        if(SlipOk_res.data.success){
+          return {
+            status: c.set.status,
+            success: true,
+            data: SlipOk_res.data,
+            message: 'ตรวจสอบสลิปสำเร็จ',
+          };
         }
-        throw error;
+        
+      } catch (error) {
+        if(axios.isAxiosError(error)){
+          let data_SlipOk = error.response?.data
+
+          console.error("error response",data_SlipOk);
+          
+          if(data_SlipOk.code === 1012){
+            return{
+              status: c.set.status,
+              success: true,
+              data: data_SlipOk,
+              message: 'สลิปซ้ำกัน',
+            }
+          }else {
+            return{
+              status: c.set.status,
+              success: true,
+              data: data_SlipOk,
+              message: data_SlipOk.message,
+            }
+          }
+        }
       }
     } catch (error) {
-      if(axios.isAxiosError(error)){
-        return {
-          status: c.set.status,
-          success: true,
-          data: error.response?.data,
-          message: 'บันทึกสลิปเรียบร้อยแล้ว',
-        };
-      }
+      console.log(error)
       throw new Error("เกิดข้อผิดพลาดในการอัปโหลด slip");
     }
   }
+  
+  
+
 
   return {
     status: c.set.status,
