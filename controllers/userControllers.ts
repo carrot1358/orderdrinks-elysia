@@ -1,6 +1,6 @@
 import { Context } from "elysia";
 import { User } from "~/models";
-import { jwt } from "~/utils";
+import { jwt, getUserIdFromToken } from "~/utils";
 import { randomUUID } from "crypto";
 import { join } from "path";
 import { writeFile, mkdir } from "fs/promises";
@@ -136,24 +136,11 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
     throw new Error("ไม่ได้ระบุ ID");
   }
 
-  // ดึง token จาก header
-  let token;
-  if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
-    token = c.headers.authorization.split(" ")[1];
+  if (!c.headers.authorization) {
+    throw new Error("ไม่พบ token การยืนยันตัวตน");
   }
-
-  if (!token) {
-    c.set.status = 401;
-    throw new Error("ไม่พบ token");
-  }
-
-  // ถอดรหัส token เพื่อดึง userId
-  const decoded = (await jwt.verify(token)) as {
-    sub: string;
-    data: DecodedToken;
-  };
-  console.log("decoded", decoded);
-  const requestingUserId = decoded.sub;
+  const Token_data = await getUserIdFromToken(c.headers.authorization, true) as DecodedToken;
+  const requestingUserId = Token_data.userId;
 
   // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
   const user = await User.findOne({ userId: c.params.id }).select("-password");
@@ -165,7 +152,7 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
   }
 
   // ตรวจสอบว่าผู้ใช้ที่ร้องขอเป็นเจ้าของข้อมูลหรือเป็นผู้ดูแลระบบ
-  if (requestingUserId !== user.userId && !decoded.data.isAdmin) {
+  if (requestingUserId !== user.userId && !Token_data.isAdmin) {
     c.set.status = 403;
     throw new Error("ไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
   }
