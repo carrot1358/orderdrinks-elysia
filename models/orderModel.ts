@@ -11,7 +11,7 @@ interface Order {
   products: OrderProduct[]
   totalPrice: number
   methodPaid: 'cash' | 'promptpay'
-  statusPaid: 'paid' | 'not_paid'
+  statusPaid: 'paid' | 'not_paid' | 'check_paid' | 'wait_paid' | 'error'
   slipImage?: string
   cancelOrder?: boolean
   completedOrder?: boolean
@@ -37,7 +37,7 @@ const orderSchema = new Schema<OrderDoc>(
     ],
     totalPrice: { type: Number, required: true, min: 0 },
     methodPaid: { type: String, enum: ['cash', 'promptpay'], required: true },
-    statusPaid: { type: String, enum: ['paid','wait_paid', 'check_paid', 'not_paid'], required: true, default: 'not_paid' },
+    statusPaid: { type: String, enum: ['paid','wait_paid', 'check_paid', 'not_paid', 'error'], required: true, default: 'not_paid' },
     slipImage: { type: String },
     cancelOrder: { type: Boolean, default: false },
     completedOrder: { type: Boolean, default: false },
