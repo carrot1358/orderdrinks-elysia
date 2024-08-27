@@ -5,6 +5,7 @@ import { error, logger } from './middlewares'
 import { connectDB } from './config'
 import { swagger } from '@elysiajs/swagger'
 import { setupWebSocket } from './utils/websocket'
+import { staticPlugin } from '@elysiajs/static'
 
 // Create Elysia instance
 const app = new Elysia()
@@ -56,6 +57,12 @@ app.use(deviceRoutes)
 
 // Order Routes [api/v1/orders]
 app.use(orderRoutes)
+
+// Static Route for 'image' folder
+app.use(staticPlugin({
+  assets: 'image',
+  prefix: '/image'
+}))
 
 // Start the server
 app.listen(Bun.env.PORT || 9000)
