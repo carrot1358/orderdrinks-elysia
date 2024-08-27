@@ -19,7 +19,7 @@ export const addProduct = async (c: Context) => {
     stock: number;
     image: any;
     isAvailable: boolean;
-  }; // เปลี่ยนเป็น type ที่ถูกต้อง
+  };
 
   // ตรวจสอบข้อมูลที่จำเป็น
   if (!name || !description || !price || !stock || !image) {
@@ -77,7 +77,7 @@ export const addProduct = async (c: Context) => {
     price: numericPrice,
     stock: numericStock,
     imagePath: `/image/product/${imageName}`,
-    isAvailable: stock > 0 || stock === -1 ? true : false,
+    isAvailable: stock > 0 || stock == -1 ? true : false,
   });
 
   if (!product) {
