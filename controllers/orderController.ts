@@ -98,6 +98,9 @@ export const checkSlip = async (c: Context) => {
     throw new Error('ไม่พบคำสั่งซื้อ')
   }
 
+  order.statusPaid = 'check_paid';
+  await order.save();
+
   // จัดการกับไฟล์ slip
   if (slip && typeof slip === "object" && "size" in slip) {
     const fileUpload = slip as FileUpload;
@@ -124,7 +127,7 @@ export const checkSlip = async (c: Context) => {
       const formData = new FormData();
       formData.append('files', fs.createReadStream(filePath));
       formData.append('log', 'true');
-      formData.append('amount', '3');
+      formData.append('amount', order.totalPrice.toString());
 
       // ส่งข้อมูลสลิปไปเช็คใน SlipOk
       try {
@@ -136,6 +139,12 @@ export const checkSlip = async (c: Context) => {
         });
 
         if(SlipOk_res.data.success){
+          order.statusPaid = 'paid'
+          const savedOrder = await order.save()
+          if(savedOrder){
+            c.set.status = 400;
+            throw new Error("ไม่สามารถอัปเดตสถานะการชำระเงินได้");
+          }
           return {
             status: c.set.status,
             success: true,
@@ -146,6 +155,8 @@ export const checkSlip = async (c: Context) => {
         
       } catch (error) {
         if(axios.isAxiosError(error)){
+          order.statusPaid = 'error'
+          await order.save()
           let data_SlipOk = error.response?.data
 
           console.error("error response",data_SlipOk);
