@@ -28,10 +28,10 @@ interface OrderDoc extends Order, Document {}
 const orderSchema = new Schema<OrderDoc>(
   {
     orderId: { type: String, unique: true},
-    userId: { type: String, required: true },
+    userId: { type: String, ref: 'User', required: true },
     products: [
       {
-        productId: { type: String, required: true },
+        productId: { type: String, ref: 'Product', required: true },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
@@ -45,7 +45,7 @@ const orderSchema = new Schema<OrderDoc>(
     time_completed: { type: String },
     latitude: { type: Number },
     longitude: { type: Number },
-    deviceId: { type: String },
+    deviceId: { type: String ,ref: 'Device'},
     bottle_image_path: { type: String },
   },
   {

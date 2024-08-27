@@ -7,6 +7,11 @@ import axios from 'axios'; // เพิ่มการนำเข้า axios
 import fs from 'fs';
 import path from 'path';
 import FormData from 'form-data';
+interface Order_Interface {
+  userId: {
+    userId: string;
+  };
+}
 
 /**
  * @api [POST] /api/v1/orders
@@ -201,7 +206,11 @@ export const checkSlip = async (c: Context) => {
  * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const getOrders = async (c: Context) => {
-  const orders = await Order.find().populate('userId', 'name email')
+  const orders = await Order.find().populate({
+    path: 'userId',
+    select: 'name email phone',
+    match: { userId: { $exists: true } }
+  })
 
   if (!orders || orders.length === 0) {
     c.set.status = 404
@@ -227,11 +236,32 @@ export const getOrderById = async (c: Context<{ params: { id: string } }>) => {
     throw new Error('ไม่ได้ระบุ ID คำสั่งซื้อ')
   }
 
-  const order = await Order.findById(c.params.id).populate('userId', 'name email')
+
+  const order : Order_Interface | null = await Order.findOne({orderId: c.params.id})
+    .populate({
+      path: 'userId',
+      select: 'name email phone',
+      localField: 'userId',
+      foreignField: 'userId'
+    })
+    .populate({
+      path: 'products.productId',
+      model: 'Product',
+      select: 'name price imagePath',
+      localField: 'productId',
+      foreignField: 'productId'
+    })
 
   if (!order) {
     c.set.status = 404
     throw new Error('ไม่พบคำสั่งซื้อ')
+  }
+
+  const decodedToken = await getUserIdFromToken(c.headers.authorization || '',true) as DecodedToken
+
+  if(decodedToken.userId !== order.userId.userId && !decodedToken.isAdmin){
+    c.set.status = 403
+    throw new Error('คุณไม่ได้รับอนุญาตให้เข้าถึงข้อมูลนี้ order UserId: '+order.userId.userId +' token UserId: '+decodedToken.userId)
   }
 
   return {
