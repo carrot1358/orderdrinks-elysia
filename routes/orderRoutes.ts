@@ -3,8 +3,9 @@ import {
   createOrder,
   getOrders,
   getOrderById,
-  updateOrderStatus,
-  checkSlip
+  checkSlip,
+  cancelOrder,
+  completeOrder
 } from '~/controllers'
 import { admin, auth } from '~/middlewares'
 
@@ -62,15 +63,22 @@ const orderRoutes = (app: Elysia) => {
         }
       })
 
-      .put('/:id/status', updateOrderStatus, {
-        beforeHandle: (c) => admin(c),
-        body: t.Object({
-          statusPaid: t.Union([t.Literal('paid'), t.Literal('not_paid')]),
-        }),
+      .put('/cancel/:id', cancelOrder, {
+        beforeHandle: (c) => auth(c),
         detail: {
           tags: ['Order'],
-          summary: 'อัปเดตสถานะการชำระเงินของคำสั่งซื้อ',
-          description: 'อัปเดตสถานะการชำระเงินของคำสั่งซื้อตาม ID ที่ระบุ (เฉพาะผู้ดูแลระบบ)',
+          summary: 'ยกเลิกคำสั่งซื้อ',
+          description: 'ยกเลิกคำสั่งซื้อตาม ID ที่ระบุ',
+          security: [{ bearerAuth: [] }]
+        }
+      })
+
+      .put('/complete/:id', completeOrder, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ['Order'],
+          summary: 'สำเร็จคำสั่งซื้อ',
+          description: 'สำเร็จคำสั่งซื้อตาม ID ที่ระบุ',
           security: [{ bearerAuth: [] }]
         }
       })

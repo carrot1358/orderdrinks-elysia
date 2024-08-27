@@ -206,10 +206,17 @@ export const checkSlip = async (c: Context) => {
  * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const getOrders = async (c: Context) => {
-  const orders = await Order.find().populate({
+  const orders : Order_Interface[] | null = await Order.find().populate({
     path: 'userId',
-    select: 'name email phone',
-    match: { userId: { $exists: true } }
+    select: 'name email phone avatarPath address latitude longitude',
+    localField: 'userId',
+    foreignField: 'userId'
+  }).populate({
+    path: 'products.productId',
+    model: 'Product',
+    select: 'name price imagePath',
+    localField: 'productId',
+    foreignField: 'productId'
   })
 
   if (!orders || orders.length === 0) {
@@ -240,7 +247,7 @@ export const getOrderById = async (c: Context<{ params: { id: string } }>) => {
   const order : Order_Interface | null = await Order.findOne({orderId: c.params.id})
     .populate({
       path: 'userId',
-      select: 'name email phone',
+      select: 'name email phone avatarPath address latitude longitude',
       localField: 'userId',
       foreignField: 'userId'
     })
@@ -273,55 +280,34 @@ export const getOrderById = async (c: Context<{ params: { id: string } }>) => {
 }
 
 /**
- * @api [PUT] /api/v1/orders/:id/status
- * @description อัปเดตสถานะการชำระเงินของคำสั่งซื้อ
- * @action เฉพาะผู้ดูแลระบบ (admin)
- */
-export const updateOrderStatus = async (c: Context<{ params: { id: string } }>) => {
-  if (!c.params?.id) {
-    c.set.status = 400
-    throw new Error('ไม่ได้ระบุ ID คำสั่งซื้อ')
-  }
-
-  if (!c.body) throw new Error('ไม่มีข้อมูลที่ส่งมา')
-
-  const { statusPaid } = c.body as any
-
-  const order = await Order.findByIdAndUpdate(
-    c.params.id,
-    { statusPaid },
-    { new: true }
-  )
-
-  if (!order) {
-    c.set.status = 404
-    throw new Error('ไม่พบคำสั่งซื้อ')
-  }
-
-  return {
-    status: c.set.status,
-    success: true,
-    data: order,
-    message: 'อัปเดตสถานะการชำระเงินสำเร็จ',
-  }
-}
-
-/**
  * @api [PUT] /api/v1/orders/:id/cancel
  * @description ยกเลิกคำสั่งซื้อ
- * @action ต้องผ่านการยืนยันตัวตน (auth)
+ * @action เจ้าของคำสั่งซื้อ(own)หรือผู้ดูแลระบบ(admin)
  */
 export const cancelOrder = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
     c.set.status = 400
     throw new Error('ไม่ได้ระบุ ID คำสั่งซื้อ')
   }
-
-  const order = await Order.findByIdAndUpdate(c.params.id, { cancelOrder: true }, { new: true })
+  const decodedToken = await getUserIdFromToken(c.headers.authorization || '',true) as DecodedToken
+  const order = await Order.findOne({orderId: c.params.id})
 
   if (!order) {
     c.set.status = 404
     throw new Error('ไม่พบคำสั่งซื้อ')
+  }
+
+  if(decodedToken.userId !== order.userId && !decodedToken.isAdmin){
+    c.set.status = 403
+    throw new Error('คุณไม่ได้รับอนุญาตให้เข้าถึงข้อมูลนี้ order UserId: '+order.userId +' token UserId: '+ decodedToken.userId)
+  }
+
+  if(order.cancelOrder === true){
+    c.set.status = 400
+    throw new Error('คำสั่งซื้อถูกยกเลิกไปก่อนหน้านี้')
+  }else{  
+    order.cancelOrder = true
+    await order.save()
   }
 
   return {
@@ -335,7 +321,7 @@ export const cancelOrder = async (c: Context<{ params: { id: string } }>) => {
 /**
  * @api [PUT] /api/v1/orders/:id/complete
  * @description สำเร็จคำสั่งซื้อ
- * @action ต้องผ่านการยืนยันตัวตน (auth)
+ * @action เฉพาะผู้ดูแลระบบ (admin)
  */
 export const completeOrder = async (c: Context<{ params: { id: string } }>) => {
   if (!c.params?.id) {
@@ -343,7 +329,7 @@ export const completeOrder = async (c: Context<{ params: { id: string } }>) => {
     throw new Error('ไม่ได้ระบุ ID คำสั่งซื้อ')
   }
 
-  const order = await Order.findByIdAndUpdate(c.params.id, { completedOrder: true }, { new: true })
+  const order = await Order.findOneAndUpdate({orderId: c.params.id},{completedOrder: true},{new: true})
 
   if (!order) {
     c.set.status = 404
