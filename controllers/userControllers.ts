@@ -179,7 +179,6 @@ export const getUserProfile = async (c: Context) => {
   if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
     token = c.headers.authorization.split(" ")[1];
     const decoded = (await jwt.verify(token)) as { data: DecodedToken };
-    console.log(decoded);
     userId = decoded.data.userId;
   }
 
