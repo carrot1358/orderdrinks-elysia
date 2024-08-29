@@ -6,6 +6,7 @@ import {
   deviceRoutes,
   orderRoutes,
   paymentRoutes,
+  lineAuthRoutes,
 } from "./routes";
 import { error, logger } from "./middlewares";
 import { connectDB } from "./config";
@@ -81,6 +82,9 @@ app.use(orderRoutes);
 
 // Payment Routes
 app.use(paymentRoutes);
+
+// Line Auth Routes
+app.use(lineAuthRoutes);
 
 // Static Route for 'image' folder
 app.use(
