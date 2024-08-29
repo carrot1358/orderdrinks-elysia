@@ -24,10 +24,10 @@ declare global {
     phone: string
     address: string
     avatar: string
-    lng: number
-    lat: number
+    lng: string
+    lat: string
     role: string
-    isAdmin: boolean
+    isAdmin: string
     email: string
   }
 

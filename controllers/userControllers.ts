@@ -230,6 +230,8 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
     lat,
   } = c.body as UpdateBody;
 
+  
+
   // ตรวจสอบว่ามี token หรือไม่
   if (!token) {
     c.set.status = 401;
@@ -254,6 +256,7 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
     c.set.status = 404;
     throw new Error("ไม่พบผู้ใช้");
   }
+
 
   // อัปเดตข้อมูลผู้ใช้
   user.name = name || user.name;
@@ -282,13 +285,13 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
       );
     } else {
       user.role = role as "admin" | "driver" | "manager" | "user";
-      user.isAdmin = isAdmin;
+      user.isAdmin = isAdmin === "true" ? true : false;
     }
   }
 
   if (lng && lat) {
-    user.lng = lng;
-    user.lat = lat;
+    user.lng = parseFloat(lng);
+    user.lat = parseFloat(lat);
   }
 
   // จัดการกับไฟล์ avatar
