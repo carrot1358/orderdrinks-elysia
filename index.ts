@@ -6,6 +6,7 @@ import { connectDB } from './config'
 import { swagger } from '@elysiajs/swagger'
 import { setupWebSocket } from './utils/websocket'
 import { staticPlugin } from '@elysiajs/static'
+import { cors } from '@elysiajs/cors'
 
 // Create Elysia instance
 const app = new Elysia()
@@ -14,6 +15,11 @@ const app = new Elysia()
 connectDB()
 
 // Middlewares
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(swagger({
   documentation: {
     info: {
