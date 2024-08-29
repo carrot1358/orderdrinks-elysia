@@ -72,7 +72,8 @@ export const loginUser = async (c: Context) => {
 
   const { phone, password } = c.body as LoginBody;
 
-  if (!phone || !password) throw new Error("รหัสผ่านหรือหมายเลขโทรศัพท์ไม่ถูกต้อง");
+  if (!phone || !password)
+    throw new Error("รหัสผ่านหรือหมายเลขโทรศัพท์ไม่ถูกต้อง");
 
   // Check for user
   const user = await User.findOne({ phone });
@@ -139,10 +140,10 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
   if (!c.headers.authorization) {
     throw new Error("ไม่พบ token การยืนยันตัวตน");
   }
-  const Token_data = await getUserIdFromToken(
+  const Token_data = (await getUserIdFromToken(
     c.headers.authorization,
     true
-  ) as DecodedToken;
+  )) as DecodedToken;
   const requestingUserId = Token_data.userId;
 
   // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
@@ -178,6 +179,7 @@ export const getUserProfile = async (c: Context) => {
   if (c.headers.authorization && c.headers.authorization.startsWith("Bearer")) {
     token = c.headers.authorization.split(" ")[1];
     const decoded = (await jwt.verify(token)) as { data: DecodedToken };
+    console.log(decoded);
     userId = decoded.data.userId;
   }
 
@@ -230,8 +232,6 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
     lat,
   } = c.body as UpdateBody;
 
-  
-
   // ตรวจสอบว่ามี token หรือไม่
   if (!token) {
     c.set.status = 401;
@@ -256,7 +256,6 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
     c.set.status = 404;
     throw new Error("ไม่พบผู้ใช้");
   }
-
 
   // อัปเดตข้อมูลผู้ใช้
   user.name = name || user.name;

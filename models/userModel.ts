@@ -3,6 +3,7 @@ import { Document, Schema, model } from "mongoose";
 interface User {
   userId: string;
   name: string;
+  lineName: string;
   email: string;
   password: string;
   address: string;
@@ -13,6 +14,7 @@ interface User {
   role: "admin" | "driver" | "manager" | "user";
   lineId: string;
   avatar: string;
+  lineAvatar: string;
 }
 
 interface UserDoc extends User, Document {
@@ -25,6 +27,7 @@ const userSchema = new Schema<UserDoc>(
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     name: { type: String },
+    lineName: { type: String },
     email: { type: String },
     isAdmin: { type: Boolean, default: false },
     role: {
@@ -35,6 +38,7 @@ const userSchema = new Schema<UserDoc>(
     },
     lineId: { type: String },
     avatar: { type: String },
+    lineAvatar: { type: String },
     address: { type: String },
     lng: { type: Number },
     lat: { type: Number },
