@@ -12,14 +12,14 @@ import { writeFile, mkdir } from "fs/promises";
  */
 export const createUser = async (c: Context) => {
   //   Check for body
-  if (!c.body) throw new Error("No body provided");
+  if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
   const { name, password, isAdmin, role, phone } = c.body as RegBody;
 
   const phoneExists = await User.findOne({ phone });
   if (phoneExists) {
     c.set.status = 400;
-    throw new Error("Phone number already exists!");
+    throw new Error("หมายเลขโทรศัพท์นี้มีอยู่ในระบบแล้ว");
   }
 
   // Generate a unique userId
@@ -37,7 +37,7 @@ export const createUser = async (c: Context) => {
 
   if (!_user) {
     c.set.status = 400;
-    throw new Error("Invalid user data!");
+    throw new Error("ข้อมูลผู้ใช้ไม่ถูกต้อง");
   }
 
   // Generate token
@@ -57,7 +57,7 @@ export const createUser = async (c: Context) => {
     status: c.set.status,
     success: true,
     data: { accessToken },
-    message: "User created successfully",
+    message: "สร้างผู้ใช้สำเร็จ",
   };
 };
 
@@ -68,24 +68,24 @@ export const createUser = async (c: Context) => {
  */
 export const loginUser = async (c: Context) => {
   //   Check for body
-  if (!c.body) throw new Error("No body provided");
+  if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
   const { phone, password } = c.body as LoginBody;
 
-  if (!phone || !password) throw new Error("Invalid phone or password!");
+  if (!phone || !password) throw new Error("รหัสผ่านหรือหมายเลขโทรศัพท์ไม่ถูกต้อง");
 
   // Check for user
   const user = await User.findOne({ phone });
   if (!user) {
     c.set.status = 401;
-    throw new Error("Invalid phone or password!");
+    throw new Error("รหัสผ่านหรือหมายเลขโทรศัพท์ไม่ถูกต้อง");
   }
 
   // Check for password
   const isMatch = await user.mathPassword(password);
   if (!isMatch) {
     c.set.status = 401;
-    throw new Error("Invalid phone or password!");
+    throw new Error("รหัสผ่านหรือหมายเลขโทรศัพท์ไม่ถูกต้อง");
   }
 
   // Generate token
@@ -98,7 +98,7 @@ export const loginUser = async (c: Context) => {
     status: c.set.status,
     success: true,
     data: { accessToken },
-    message: "User logged in successfully",
+    message: "เข้าสู่ระบบสำเร็จ",
   };
 };
 
@@ -113,7 +113,7 @@ export const getUsers = async (c: Context) => {
   // Check for users
   if (!users || users.length === 0) {
     c.set.status = 404;
-    throw new Error("No users found!");
+    throw new Error("ไม่พบผู้ใช้");
   }
 
   // Return success response
@@ -121,7 +121,7 @@ export const getUsers = async (c: Context) => {
     status: c.set.status,
     success: true,
     data: users,
-    message: "Users fetched successfully",
+    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
   };
 };
 
@@ -139,7 +139,10 @@ export const getUser = async (c: Context<{ params: { id: string } }>) => {
   if (!c.headers.authorization) {
     throw new Error("ไม่พบ token การยืนยันตัวตน");
   }
-  const Token_data = await getUserIdFromToken(c.headers.authorization, true) as DecodedToken;
+  const Token_data = await getUserIdFromToken(
+    c.headers.authorization,
+    true
+  ) as DecodedToken;
   const requestingUserId = Token_data.userId;
 
   // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
