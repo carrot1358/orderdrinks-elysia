@@ -7,6 +7,7 @@ import {
   orderRoutes,
   paymentRoutes,
   lineAuthRoutes,
+  lineWebhookRoutes,
 } from "./routes";
 import { error, logger } from "./middlewares";
 import { connectDB } from "./config";
@@ -85,6 +86,9 @@ app.use(paymentRoutes);
 
 // Line Auth Routes
 app.use(lineAuthRoutes);
+
+// Line Webhook Routes
+app.use(lineWebhookRoutes);
 
 // Static Route for 'image' folder
 app.use(

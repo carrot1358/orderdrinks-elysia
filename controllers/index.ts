@@ -4,3 +4,4 @@ export * from "./deviceControllers";
 export * from "./orderController";
 export * from "./paymentController";
 export * from "./lineAuthController";
+export * from "./lineWebhook";
