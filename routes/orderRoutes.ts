@@ -1,34 +1,35 @@
-import { Elysia, t } from 'elysia'
+import { Elysia, t } from "elysia";
 import {
   createOrder,
   getOrders,
   getOrderById,
   checkSlip,
   cancelOrder,
-  completeOrder
-} from '~/controllers'
-import { admin, auth } from '~/middlewares'
+  completeOrder,
+  getMyOrder,
+} from "~/controllers";
+import { admin, auth } from "~/middlewares";
 
 const orderRoutes = (app: Elysia) => {
-  app.group('/api/v1/orders', (app) =>
+  app.group("/api/v1/orders", (app) =>
     app
-      .post('/', createOrder, {
+      .post("/", createOrder, {
         beforeHandle: (c) => auth(c),
         body: t.Object({
           products: t.String(),
-          methodPaid: t.Union([t.Literal('cash'), t.Literal('promptpay')]),
+          methodPaid: t.Union([t.Literal("cash"), t.Literal("promptpay")]),
           imageSlipPaid: t.Optional(t.File()),
         }),
         type: "multipart/form-data",
         detail: {
-          tags: ['Order'],
-          summary: 'สร้างคำสั่งซื้อใหม่',
-          description: 'สร้างคำสั่งซื้อใหม่ในระบบ',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "สร้างคำสั่งซื้อใหม่",
+          description: "สร้างคำสั่งซื้อใหม่ในระบบ",
+          security: [{ bearerAuth: [] }],
+        },
       })
 
-      .post('/check_slip', checkSlip, {
+      .post("/check_slip", checkSlip, {
         beforeHandle: (c) => auth(c),
         body: t.Object({
           orderId: t.String(),
@@ -36,53 +37,63 @@ const orderRoutes = (app: Elysia) => {
         }),
         type: "multipart/form-data",
         detail: {
-          tags: ['Order'],
-          summary: 'ตรวจสอบสลิปการชำระเงิน',
-          description: 'ตรวจสอบสลิปการชำระเงิน',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "ตรวจสอบสลิปการชำระเงิน",
+          description: "ตรวจสอบสลิปการชำระเงิน",
+          security: [{ bearerAuth: [] }],
+        },
       })
 
-      .get('/', getOrders, {
+      .get("/", getOrders, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['Order'],
-          summary: 'ดึงข้อมูลคำสั่งซื้อทั้งหมด',
-          description: 'ดึงข้อมูลคำสั่งซื้อทั้งหมดในระบบ (เฉพาะผู้ดูแลระบบ)',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "ดึงข้อมูลคำสั่งซื้อทั้งหมด",
+          description: "ดึงข้อมูลคำสั่งซื้อทั้งหมดในระบบ (เฉพาะผู้ดูแลระบบ)",
+          security: [{ bearerAuth: [] }],
+        },
       })
 
-      .get('/:id', getOrderById, {
+      .get("/:id", getOrderById, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['Order'],
-          summary: 'ดึงข้อมูลคำสั่งซื้อตาม ID',
-          description: 'ดึงข้อมูลคำสั่งซื้อตาม ID ที่ระบุ',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "ดึงข้อมูลคำสั่งซื้อตาม ID",
+          description: "ดึงข้อมูลคำสั่งซื้อตาม ID ที่ระบุ",
+          security: [{ bearerAuth: [] }],
+        },
       })
 
-      .put('/cancel/:id', cancelOrder, {
+      .get("/my_order", getMyOrder, {
         beforeHandle: (c) => auth(c),
         detail: {
-          tags: ['Order'],
-          summary: 'ยกเลิกคำสั่งซื้อ',
-          description: 'ยกเลิกคำสั่งซื้อตาม ID ที่ระบุ',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "ดึงข้อมูลคำสั่งซื้อตามผู้ใช้",
+          description: "ดึงข้อมูลคำสั่งซื้อตามผู้ใช้ที่ระบุ",
+          security: [{ bearerAuth: [] }],
+        },
       })
 
-      .put('/complete/:id', completeOrder, {
+      .put("/cancel/:id", cancelOrder, {
+        beforeHandle: (c) => auth(c),
+        detail: {
+          tags: ["Order"],
+          summary: "ยกเลิกคำสั่งซื้อ",
+          description: "ยกเลิกคำสั่งซื้อตาม ID ที่ระบุ",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .put("/complete/:id", completeOrder, {
         beforeHandle: (c) => admin(c),
         detail: {
-          tags: ['Order'],
-          summary: 'สำเร็จคำสั่งซื้อ',
-          description: 'สำเร็จคำสั่งซื้อตาม ID ที่ระบุ',
-          security: [{ bearerAuth: [] }]
-        }
+          tags: ["Order"],
+          summary: "สำเร็จคำสั่งซื้อ",
+          description: "สำเร็จคำสั่งซื้อตาม ID ที่ระบุ",
+          security: [{ bearerAuth: [] }],
+        },
       })
-  )
-}
+  );
+};
 
-export default orderRoutes as any
+export default orderRoutes as any;
