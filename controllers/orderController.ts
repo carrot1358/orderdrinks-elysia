@@ -7,6 +7,8 @@ import axios from "axios"; // เพิ่มการนำเข้า axios
 import fs from "fs";
 import path from "path";
 import FormData from "form-data";
+import { getDeviceConnections } from "~/utils/websocket";
+
 interface Order_Interface {
   userId: {
     userId: string;
@@ -77,6 +79,7 @@ export const createOrder = async (c: Context) => {
     totalPrice,
     methodPaid,
     statusPaid: methodPaid === "cash" ? "not_paid" : "wait_paid",
+    deliverStatus: "pending",
   });
 
   if (!order) {
@@ -376,11 +379,11 @@ export const cancelOrder = async (c: Context<{ params: { id: string } }>) => {
     );
   }
 
-  if (order.cancelOrder === true) {
+  if (order.deliverStatus === "cancel") {
     c.set.status = 400;
     throw new Error("คำสั่งซื้อถูกยกเลิกไปก่อนหน้านี้");
   } else {
-    order.cancelOrder = true;
+    order.deliverStatus = "cancel";
     await order.save();
   }
 
@@ -405,7 +408,7 @@ export const completeOrder = async (c: Context<{ params: { id: string } }>) => {
 
   const order = await Order.findOneAndUpdate(
     { orderId: c.params.id },
-    { completedOrder: true },
+    { deliverStatus: "delivered" },
     { new: true }
   );
 
@@ -418,7 +421,56 @@ export const completeOrder = async (c: Context<{ params: { id: string } }>) => {
       status: c.set.status,
       success: true,
       data: order,
-      message: "สำเร็จ",
+      message: "สำเร็จคำสั่งซื้อและอัปเดตสถานะการจัดส่งเป็น 'delivered'",
     };
+  }
+};
+
+export const prepareDelivery = async (c: Context) => {
+  try {
+    const pendingOrders = await Order.find({
+      deliverStatus: "pending",
+    }).populate({
+      path: "userId",
+      select: "name email phone avatarPath address latitude longitude",
+      localField: "userId",
+      foreignField: "userId",
+    });
+
+    if (!pendingOrders || pendingOrders.length === 0) {
+      c.set.status = 404;
+      return { success: false, message: "ไม่พบคำสั่งซื้อที่รอการจัดส่ง" };
+    }
+
+    // อัปเดตสถานะเป็น 'delivering'
+    await Order.updateMany(
+      { deliverStatus: "pending" },
+      { deliverStatus: "delivering" }
+    );
+
+    // ส่งข้อมูลไปยัง Raspberry Pi ผ่าน WebSocket
+    const deviceConnections = getDeviceConnections();
+    deviceConnections.forEach((ws: any) => {
+      ws.send(
+        JSON.stringify({
+          type: "prepare_delivery",
+          orders: pendingOrders.map((order) => ({
+            orderId: order.orderId,
+            userId: order.userId.userId, // แก้ด้วย ยังไม่ทดสอบ
+            latitude: order.userId.latitude,
+            longitude: order.userId.longitude,
+          })),
+        })
+      );
+    });
+
+    return {
+      success: true,
+      message: "เริ่มการจัดส่งสำเร็จ",
+      data: pendingOrders,
+    };
+  } catch (error) {
+    c.set.status = 500;
+    return { success: false, message: "เกิดข้อผิดพลาดในการเตรียมการจัดส่ง" };
   }
 };

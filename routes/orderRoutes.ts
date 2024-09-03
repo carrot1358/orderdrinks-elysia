@@ -7,6 +7,7 @@ import {
   cancelOrder,
   completeOrder,
   getMyOrder,
+  prepareDelivery,
 } from "~/controllers";
 import { admin, auth } from "~/middlewares";
 
@@ -79,7 +80,7 @@ const orderRoutes = (app: Elysia) => {
         detail: {
           tags: ["Order"],
           summary: "ยกเลิกคำสั่งซื้อ",
-          description: "ยกเลิกคำสั่งซื้อตาม ID ที่ระบุ",
+          description: "ยกเลิกคำสั่งซื้อและเปลี่ยนสถานะการจัดส่งเป็น 'cancel'",
           security: [{ bearerAuth: [] }],
         },
       })
@@ -89,7 +90,19 @@ const orderRoutes = (app: Elysia) => {
         detail: {
           tags: ["Order"],
           summary: "สำเร็จคำสั่งซื้อ",
-          description: "สำเร็จคำสั่งซื้อตาม ID ที่ระบุ",
+          description:
+            "สำเร็จคำสั่งซื้อและเปลี่ยนสถานะการจัดส่งเป็น 'delivered'",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .post("/prepare-delivery", prepareDelivery, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ["Order"],
+          summary: "เตรียมการจัดส่งสินค้า",
+          description:
+            "เปลี่ยนสถานะคำสั่งซื้อเป็น 'delivering' และส่งข้อมูลไปยัง Raspberry Pi",
           security: [{ bearerAuth: [] }],
         },
       })
