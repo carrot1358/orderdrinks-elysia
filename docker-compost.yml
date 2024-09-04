@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/orderdrinks
+    depends_on:
+      - mongodb
+    networks:
+      - My-Orderdrinks
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - My-Orderdrinks
+
+networks:
+  My-Orderdrinks:
+    driver: bridge
+
+volumes:
+  mongodb_data:
