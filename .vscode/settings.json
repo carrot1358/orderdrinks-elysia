@@ -16,5 +16,9 @@
     "**/*.lock": true,
     "**/*.lockb": true,
     "**/*node.json": true
-  }
+  },
+  "appService.zipIgnorePattern": [
+    "node_modules{,/**}",
+    ".vscode{,/**}"
+  ]
 }
