@@ -3,9 +3,9 @@ import axios from "axios";
 import { User } from "~/models";
 import { jwt } from "~/utils";
 
-const clientID = "2005654041";
-const clientSecret = "a075202cb25f92bc71104f8593575f45";
-const redirectUri = "http://orderdrinks.webhop.me:9000/line/callback";
+const clientID = import.meta.env.LINE_LOGIN_CHANNEL_ID as string;
+const clientSecret = import.meta.env.LINE_LOGIN_CHANNEL_SECRET as string;
+const redirectUri = import.meta.env.LINE_LOGIN_CALLBACK_URL as string;
 
 const getAccessToken = async (authorizationCode: string) => {
   try {
