@@ -24,7 +24,7 @@ interface UserDoc extends User, Document {
 const userSchema = new Schema<UserDoc>(
   {
     userId: { type: String, unique: true },
-    phone: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     name: { type: String },
     lineName: { type: String },
