@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   app:
+    container_name: orderdrinks-elysia
     build:
       context: .
       dockerfile: Dockerfile
