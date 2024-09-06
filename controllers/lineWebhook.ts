@@ -1,5 +1,6 @@
 import { Context } from "elysia";
-import { Client, middleware, WebhookEvent } from "@line/bot-sdk";
+import { Client, middleware, WebhookEvent, TextMessage } from "@line/bot-sdk";
+import { sendTextMessage, sendFlexMessage } from "../utils/lineMessaging";
 
 const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -20,12 +21,35 @@ export const handleWebhook = async (c: Context) => {
     await Promise.all(
       events.map(async (event) => {
         if (event.type === "message" && event.message.type === "text") {
-          const { replyToken } = event;
           const { text } = event.message;
-          await client.replyMessage(replyToken, {
-            type: "text",
-            text: `คุณส่งข้อความ: ${text}`,
-          });
+          const userId = event.source.userId as string;
+
+          console.log(
+            `Received message - User ID: ${userId}, Message: ${text}`
+          );
+
+          // ตัวอย่างการใช้ sendTextMessage
+          await sendTextMessage(userId, `คุณส่งข้อความ: ${text}`);
+
+          // ตัวอย่างการใช้ sendFlexMessage
+          if (text.toLowerCase() === "flex") {
+            const flexContent = {
+              type: "bubble",
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "นี่คือ Flex Message",
+                    weight: "bold",
+                    size: "xl",
+                  },
+                ],
+              },
+            };
+            await sendFlexMessage(userId, flexContent);
+          }
         }
       })
     );

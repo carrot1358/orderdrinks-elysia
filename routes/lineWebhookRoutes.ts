@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { handleWebhook, lineMiddleware } from "~/controllers/lineWebhook";
+import { sendTextMessage, sendFlexMessage } from "~/utils/lineMessaging";
 
 const lineWebhookRoutes = (app: Elysia) => {
   app.post(
@@ -31,6 +32,22 @@ const lineWebhookRoutes = (app: Elysia) => {
       },
     }
   );
+
+  app.post("/send-message", async ({ body }) => {
+    const { userId, message, isFlexMessage } = body as {
+      userId: string;
+      message: string | any;
+      isFlexMessage?: boolean;
+    };
+
+    if (isFlexMessage) {
+      await sendFlexMessage(userId, message);
+    } else {
+      await sendTextMessage(userId, message);
+    }
+
+    return { status: 200, body: "Message sent successfully" };
+  });
 };
 
 export default lineWebhookRoutes as any;
