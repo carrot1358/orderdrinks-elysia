@@ -10,6 +10,16 @@ services:
       - "9000:9000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/orderdrinks
+      - FONTEND_URL=http://orderdrinks.webhop.me:3000
+      - JWT_SECRET=secret
+      - JWT_EXPIRE=7d
+      - BRANCH_ID=your_branch_id
+      - API_KEY=your_api_key
+      - LINE_CHANNEL_ACCESS_TOKEN=your_line_channel_access_token
+      - LINE_CHANNEL_SECRET=your_line_channel_secret
+      - LINE_LOGIN_CHANNEL_ID=your_line_login_channel_id
+      - LINE_LOGIN_CHANNEL_SECRET=your_line_login_channel_secret
+      - LINE_LOGIN_CALLBACK_URL=your_line_login_callback_url
     depends_on:
       - mongodb
     networks:
