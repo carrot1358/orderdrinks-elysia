@@ -1,6 +1,4 @@
-import { Context } from "elysia";
-import { Client, middleware, WebhookEvent } from "@line/bot-sdk";
-import { sendTextMessage, sendFlexMessage } from "../utils/lineMessaging";
+import { WebhookEvent, Client, middleware } from "@line/bot-sdk";
 
 const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -9,18 +7,12 @@ const config = {
 
 const client = new Client(config);
 
-export const handleWebhook = async (c: Context) => {
+export const handleWebhook = async (body: any) => {
   try {
-    console.log("Received webhook payload:", c.body);
+    console.log("Received webhook payload:", body);
 
-    // ตรวจสอบว่า c.body เป็น object และมี property 'events'
-    if (
-      typeof c.body === "object" &&
-      c.body &&
-      "events" in c.body &&
-      Array.isArray(c.body.events)
-    ) {
-      const events: WebhookEvent[] = c.body.events;
+    if (body && "events" in body && Array.isArray(body.events)) {
+      const events: WebhookEvent[] = body.events;
 
       await Promise.all(
         events.map(async (event) => {
@@ -47,7 +39,6 @@ export const handleWebhook = async (c: Context) => {
     return { status: 200, body: "OK" };
   } catch (error) {
     console.error("เกิดข้อผิดพลาดในการประมวลผล webhook:", error);
-    // ส่งคืนสถานะ 200 แม้ว่าจะมีข้อผิดพลาด
     return { status: 200, body: "OK" };
   }
 };
