@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY package.json .
 COPY bun.lockb .
-COPY .env.example .env
 
 RUN bun install
 
