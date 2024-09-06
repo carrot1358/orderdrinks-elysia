@@ -14,4 +14,4 @@
            host: ${{ secrets.AZURE_VM_IP }}
            username: ${{ secrets.AZURE_VM_USERNAME }}
            key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
-           script: /home/yourusername/update_and_rebuild.sh
+           script: /home/azureuser/update_and_rebuild.sh
