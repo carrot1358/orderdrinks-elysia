@@ -1,42 +1,52 @@
 # ส่วนประกอบของโครงการ
 
-### Git FrontEnd VueJS : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs)
+### Git FrontEnd VueJS : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs)] [[GitHub](https://github.com/carrot1358/orderdrinks-vuejs)]
 
-### Git BackEnd Elysia : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia) (คุณอยู่ที่นี่)
+### Git BackEnd Elysia : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia)] [[GitHub](https://github.com/carrot1358/orderdrinks-elysia)] (คุณอยู่ที่นี่)
 
-### Git สำหรับ Hardware(Raspberry Pi) : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git)
+### Git สำหรับ Hardware(Raspberry Pi) : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git)]
 
 # การติดตั้งและการตั้งค่า
 
-2. ติดตั้ง Bun จากที่นี่ : [คลิก](https://bun.sh/docs/installation)
+## 1. สำหรับการทำงานบน Localhost
 
-3. ติดตั้งตัวจัดการฐานข้อมูล MongoDB จากที่นี่ : [คลิก](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
+1.1 ติดตั้ง Bun จากที่นี่ : [คลิก](https://bun.sh/docs/installation)
 
-4. โคลนโปรเจ็คนี้จาก GitLab
+1.2 ติดตั้งตัวจัดการฐานข้อมูล MongoDB จากที่นี่ : [คลิก](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
 
-   ```bash
-   git clone https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia.git
-   cd orderdrinks-elysia
-   ```
+1.3 โคลนโปรเจ็คนี้จาก GitLab
 
-5. เปลี่ยนชื่อไฟล์ .env.example เป็น .env และตั้งค่าตามต้องการ
+      ```bash
+      git clone https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia.git
+      cd orderdrinks-elysia
+      ```
 
-   ```env
-   PORT=9000
-   MONGO_URI=mongodb://localhost:27017/orderdrinks
-   HOSTNAME=orderdrinks.webhop.me
-   FONTEND_URL=http://localhost:3000
+1.4 เปลี่ยนชื่อไฟล์ .env.example เป็น .env และตั้งค่าตามต้องการ
 
-   # JWT
-   JWT_SECRET=secret
-   JWT_EXPIRE=7d
+1.5 เริ่มโปรเจ็คด้วยคำสั่ง
+`bash
+      bun dev
+      `
 
-   # SlipOk
-   BRANCH_ID = Your SlipOk Branch ID
-   API_KEY = Your SlipOk API Key
-   ```
+## 2. สำหรับการทำงานบน Docker
 
-6. เริ่มโปรเจ็คด้วยคำสั่ง
-   ```bash
-   bun dev
-   ```
+2.1 โคลนโปรเจ็คนี้จาก GitLab
+
+```bash
+git clone https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia.git
+cd orderdrinks-elysia
+```
+
+2.2 สร้างไฟล์ `.env` และตั้งค่าตามต้องการ
+
+2.3 Build docker-compose
+
+```bash
+docker-compose up -d --build
+```
+
+2.4 ตรวจสอบการทำงานของ Docker
+
+```bash
+docker logs orderdrinks-elysia
+```
