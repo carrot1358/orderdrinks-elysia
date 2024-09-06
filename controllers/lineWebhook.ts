@@ -5,6 +5,12 @@ const config = {
   channelSecret: Bun.env.LINE_CHANNEL_SECRET || "",
 };
 
+console.log(
+  "Channel Access Token:",
+  config.channelAccessToken.substring(0, 5) + "..."
+);
+console.log("Channel Secret:", config.channelSecret.substring(0, 5) + "...");
+
 const client = new Client(config);
 
 export const handleWebhook = async (body: any) => {
