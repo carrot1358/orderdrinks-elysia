@@ -17,8 +17,8 @@
     "**/*.lockb": true,
     "**/*node.json": true
   },
-  "appService.zipIgnorePattern": [
-    "node_modules{,/**}",
-    ".vscode{,/**}"
-  ]
+  "appService.zipIgnorePattern": ["node_modules{,/**}", ".vscode{,/**}"],
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///c%3A/Users/internal-pc/Desktop/Project/orderdrinks-elysia/.github/workflows/deploy.yml"
+  }
 }
