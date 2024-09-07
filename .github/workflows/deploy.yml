@@ -1,0 +1,17 @@
+   name: Deploy to Azure VM
+
+   on:
+     push:
+       branches: [ main ]
+
+   jobs:
+     deploy:
+       runs-on: ubuntu-latest
+       steps:
+       - name: Execute remote ssh commands
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.AZURE_VM_IP }}
+           username: ${{ secrets.AZURE_VM_USERNAME }}
+           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
+           script: /home/azureuser/update_and_rebuild.sh
