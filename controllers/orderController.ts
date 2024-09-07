@@ -349,6 +349,48 @@ export const getMyOrder = async (c: Context) => {
 };
 
 /**
+ * @api [PUT] /api/v1/orders/:id/update
+ * @description อัปเดตคำสั่งซื้อ
+ * @action ผู้ดูแลระบบ(admin)
+ */
+export const updateOrder = async (c: Context<{ params: { id: string } }>) => {
+  if (!c.params?.id) {
+    c.set.status = 400;
+    throw new Error("ไม่ได้ระบุ ID คำสั่งซื้อ");
+  }
+
+  const decodedToken = (await getUserIdFromToken(
+    c.headers.authorization || "",
+    true
+  )) as DecodedToken;
+
+  if (!decodedToken.isAdmin) {
+    c.set.status = 403;
+    throw new Error("คุณไม่ได้รับอนุญาตให้เข้าถึงข้อมูลนี้");
+  }
+
+  const { statusPaid, deliverStatus, methodPaid } = c.body as any;
+
+  const order = await Order.findOneAndUpdate(
+    { orderId: c.params.id },
+    { statusPaid, deliverStatus, methodPaid },
+    { new: true }
+  );
+
+  if (!order) {
+    c.set.status = 404;
+    throw new Error("ไม่พบคำสั่งซื้อ");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: order,
+    message: "อัปเดตคำสั่งซื้อสำเร็จ",
+  };
+};
+
+/**
  * @api [PUT] /api/v1/orders/:id/cancel
  * @description ยกเลิกคำสั่งซื้อ
  * @action เจ้าของคำสั่งซื้อ(own)หรือผู้ดูแลระบบ(admin)

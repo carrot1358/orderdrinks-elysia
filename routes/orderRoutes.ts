@@ -8,6 +8,7 @@ import {
   completeOrder,
   getMyOrder,
   prepareDelivery,
+  updateOrder,
 } from "~/controllers";
 import { admin, auth } from "~/middlewares";
 
@@ -73,6 +74,27 @@ const orderRoutes = (app: Elysia) => {
           description: "ดึงข้อมูลคำสั่งซื้อตามผู้ใช้ที่ระบุ",
           security: [{ bearerAuth: [] }],
         },
+      })
+
+      .put("/update/:id", updateOrder, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ["Order"],
+          summary: "อัปเดตคำสั่งซื้อ",
+          description: "อัปเดตคำสั่งซื้อตาม ID",
+          security: [{ bearerAuth: [] }],
+        },
+        type: "multipart/form-data",
+        body: t.Object({
+          statusPaid: t.Union([t.Literal("paid"), t.Literal("not_paid")]),
+          deliverStatus: t.Union([
+            t.Literal("pending"),
+            t.Literal("delivering"),
+            t.Literal("delivered"),
+            t.Literal("cancel"),
+          ]),
+          methodPaid: t.Union([t.Literal("cash"), t.Literal("promptpay")]),
+        }),
       })
 
       .put("/cancel/:id", cancelOrder, {
