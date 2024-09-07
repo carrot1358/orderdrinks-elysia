@@ -81,7 +81,14 @@ const userRoutes = (app: Elysia) => {
           email: t.Optional(t.String()),
           password: t.Optional(t.String()),
           isAdmin: t.Optional(t.String()),
-          role: t.Optional(t.String()),
+          role: t.Optional(
+            t.Union([
+              t.Literal("admin"),
+              t.Literal("driver"),
+              t.Literal("manager"),
+              t.Literal("user"),
+            ])
+          ),
           phone: t.Optional(t.String()),
           address: t.Optional(t.String()),
           avatar: t.Optional(t.File()),
