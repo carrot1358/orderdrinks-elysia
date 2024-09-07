@@ -86,7 +86,13 @@ const orderRoutes = (app: Elysia) => {
         },
         type: "multipart/form-data",
         body: t.Object({
-          statusPaid: t.Union([t.Literal("paid"), t.Literal("not_paid")]),
+          statusPaid: t.Union([
+            t.Literal("paid"),
+            t.Literal("not_paid"),
+            t.Literal("check_paid"),
+            t.Literal("wait_paid"),
+            t.Literal("error"),
+          ]),
           deliverStatus: t.Union([
             t.Literal("pending"),
             t.Literal("delivering"),
