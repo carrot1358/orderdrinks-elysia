@@ -223,7 +223,7 @@ export const getOrders = async (c: Context) => {
   const orders: Order_Interface[] | null = await Order.find()
     .populate({
       path: "userId",
-      select: "name email phone avatarPath address latitude longitude",
+      select: "name email phone avatar address createdAt lat lng",
       localField: "userId",
       foreignField: "userId",
     })
