@@ -91,7 +91,11 @@ export const createOrder = async (c: Context) => {
   }
 
   if (user.lineId) {
-    await sendOrderNotification(user.lineId, order);
+    try {
+      await sendOrderNotification(user.lineId, order);
+    } catch (error) {
+      console.error(`ไม่สามารถส่งการแจ้งเตือน LINE ได้: ${error}`);
+    }
   }
 
   c.set.status = 201;

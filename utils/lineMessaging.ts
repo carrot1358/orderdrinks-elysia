@@ -142,7 +142,7 @@ export async function sendOrderNotification(
               action: {
                 type: "uri",
                 label: "ดูรายละเอียด",
-                uri: `https://frontend.nattapad.me/Ordering`,
+                uri: `https://yourwebsite.com/orders/${order.orderId}`,
               },
             },
           ],
@@ -153,10 +153,13 @@ export async function sendOrderNotification(
 
     await client.pushMessage(userId, flexMessage);
     console.log(`ส่งการแจ้งเตือนคำสั่งซื้อถึง User ID: ${userId} สำเร็จ`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       `เกิดข้อผิดพลาดในการส่งการแจ้งเตือนคำสั่งซื้อถึง User ID: ${userId}`,
       error
     );
+    if (error.originalError && error.originalError.response) {
+      console.error("รายละเอียดข้อผิดพลาด:", error.originalError.response.data);
+    }
   }
 }
