@@ -72,6 +72,7 @@ export async function sendOrderNotification(
               type: "text",
               text: `หมายเลขคำสั่งซื้อ: ${order.orderId}`,
               weight: "bold",
+              size: "md",
               margin: "md",
             },
             {
@@ -146,7 +147,6 @@ export async function sendOrderNotification(
               },
             },
           ],
-          flex: 0,
         },
       },
     };
