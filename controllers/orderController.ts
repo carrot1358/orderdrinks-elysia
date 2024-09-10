@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import FormData from "form-data";
 import { getDeviceConnections } from "~/utils/websocket";
+import { sendOrderNotification } from "~/utils/lineMessaging";
 
 interface Order_Interface {
   userId: {
@@ -87,6 +88,10 @@ export const createOrder = async (c: Context) => {
   if (!order) {
     c.set.status = 400;
     throw new Error("ไม่สามารถสร้างคำสั่งซื้อได้");
+  }
+
+  if (user.lineId) {
+    await sendOrderNotification(user.lineId, order);
   }
 
   c.set.status = 201;
