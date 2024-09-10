@@ -472,12 +472,20 @@ export const prepareDelivery = async (c: Context) => {
   try {
     const pendingOrders = await Order.find({
       deliverStatus: "pending",
-    }).populate({
-      path: "userId",
-      select: "name email phone avatarPath address latitude longitude",
-      localField: "userId",
-      foreignField: "userId",
-    });
+    })
+      .populate({
+        path: "userId",
+        select: "name email phone avatarPath address latitude longitude",
+        localField: "userId",
+        foreignField: "userId",
+      })
+      .populate({
+        path: "products.productId",
+        model: "Product",
+        select: "name price imagePath",
+        localField: "productId",
+        foreignField: "productId",
+      });
 
     if (!pendingOrders || pendingOrders.length === 0) {
       c.set.status = 404;
@@ -487,8 +495,32 @@ export const prepareDelivery = async (c: Context) => {
     // อัปเดตสถานะเป็น 'delivering'
     await Order.updateMany(
       { deliverStatus: "pending" },
-      { deliverStatus: "delivering" }
+      { deliverStatus: "delivering" },
+      { new: true }
     );
+
+    // สร้างข้อมูลที่จะส่งไปยัง WebSocket
+    const preparedData = {
+      type: "prepare_delivery",
+      orders: pendingOrders.map((order: any) => ({
+        orderId: order.orderId,
+        userId: order.userId.userId,
+        userName: order.userId.name,
+        phone: order.userId.phone,
+        latitude: order.userId.lat,
+        longitude: order.userId.lng,
+        totalPrice: order.totalPrice,
+        products: order.products.map((product: any) => ({
+          name: product.productId.name,
+          quantity: product.quantity,
+          price: product.productId.price,
+        })),
+      })),
+    };
+
+    // พิมพ์ข้อมูลออกมาดู
+    console.log("ข้อมูลที่จะส่งไปยัง WebSocket:");
+    console.log(JSON.stringify(preparedData, null, 2));
 
     // ส่งข้อมูลไปยัง Raspberry Pi ผ่าน WebSocket
     const deviceConnections = getDeviceConnections();
@@ -496,11 +528,19 @@ export const prepareDelivery = async (c: Context) => {
       ws.send(
         JSON.stringify({
           type: "prepare_delivery",
-          orders: pendingOrders.map((order) => ({
+          orders: pendingOrders.map((order: any) => ({
             orderId: order.orderId,
-            userId: order.userId.userId, // แก้ด้วย ยังไม่ทดสอบ
-            latitude: order.userId.latitude,
-            longitude: order.userId.longitude,
+            userId: order.userId.userId,
+            userName: order.userId.name,
+            phone: order.userId.phone,
+            latitude: order.userId.lat,
+            longitude: order.userId.lng,
+            totalPrice: order.totalPrice,
+            products: order.products.map((product: any) => ({
+              name: product.productId.name,
+              quantity: product.quantity,
+              price: product.productId.price,
+            })),
           })),
         })
       );
