@@ -1,5 +1,7 @@
 import { Client, TextMessage, FlexMessage } from "@line/bot-sdk";
 
+const backendUrl = "https://backend.nattapad.me";
+
 const client = new Client({
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
 });
@@ -91,27 +93,54 @@ export async function sendOrderNotification(
                 layout: "horizontal",
                 contents: [
                   {
-                    type: "text",
-                    text: product.productId.name,
-                    size: "sm",
-                    color: "#555555",
-                    flex: 0,
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "image",
+                        url: `${backendUrl}${product.productId.imagePath}`,
+                        size: "full",
+                        aspectMode: "cover",
+                        aspectRatio: "1:1",
+                        flex: 1,
+                      },
+                    ],
+                    width: "72px",
+                    height: "72px",
                   },
                   {
-                    type: "text",
-                    text: `x${product.quantity}`,
-                    size: "sm",
-                    color: "#111111",
-                    align: "end",
-                  },
-                  {
-                    type: "text",
-                    text: `฿${product.productId.price * product.quantity}`,
-                    size: "sm",
-                    color: "#111111",
-                    align: "end",
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "text",
+                        text: product.productId.name,
+                        size: "sm",
+                        color: "#555555",
+                        flex: 0,
+                        weight: "bold",
+                      },
+                      {
+                        type: "text",
+                        text: `x${product.quantity}`,
+                        size: "sm",
+                        color: "#111111",
+                        align: "start",
+                      },
+                      {
+                        type: "text",
+                        text: `฿${product.productId.price * product.quantity}`,
+                        size: "sm",
+                        color: "#111111",
+                        align: "start",
+                        weight: "bold",
+                      },
+                    ],
+                    flex: 2,
+                    paddingStart: "12px",
                   },
                 ],
+                margin: "md",
               })),
             },
             {
@@ -135,6 +164,7 @@ export async function sendOrderNotification(
                   size: "sm",
                   color: "#111111",
                   align: "end",
+                  weight: "bold",
                 },
               ],
             },
