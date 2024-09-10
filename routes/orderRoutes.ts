@@ -10,7 +10,7 @@ import {
   prepareDelivery,
   updateOrder,
 } from "~/controllers";
-import { admin, auth } from "~/middlewares";
+import { admin, auth, driver } from "~/middlewares";
 
 const orderRoutes = (app: Elysia) => {
   app.group("/api/v1/orders", (app) =>
@@ -125,7 +125,7 @@ const orderRoutes = (app: Elysia) => {
       })
 
       .post("/prepare-delivery", prepareDelivery, {
-        beforeHandle: (c) => admin(c),
+        beforeHandle: (c) => driver(c),
         detail: {
           tags: ["Order"],
           summary: "เตรียมการจัดส่งสินค้า",
