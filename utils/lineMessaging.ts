@@ -45,9 +45,11 @@ export async function sendOrderNotification(
   order: any
 ): Promise<void> {
   try {
+    console.log("Order data:", JSON.stringify(order, null, 2));
+
     const flexMessage: FlexMessage = {
       type: "flex",
-      altText: "คำสั่งซื้อใหม่",
+      altText: `คำสั่งซื้อใหม่ #${order.orderId}`,
       contents: {
         type: "bubble",
         header: {
@@ -102,6 +104,13 @@ export async function sendOrderNotification(
                     color: "#111111",
                     align: "end",
                   },
+                  {
+                    type: "text",
+                    text: `฿${product.productId.price * product.quantity}`,
+                    size: "sm",
+                    color: "#111111",
+                    align: "end",
+                  },
                 ],
               })),
             },
@@ -129,6 +138,46 @@ export async function sendOrderNotification(
                 },
               ],
             },
+            {
+              type: "box",
+              layout: "horizontal",
+              margin: "md",
+              contents: [
+                {
+                  type: "text",
+                  text: "วิธีการชำระเงิน",
+                  size: "sm",
+                  color: "#555555",
+                },
+                {
+                  type: "text",
+                  text: order.methodPaid,
+                  size: "sm",
+                  color: "#111111",
+                  align: "end",
+                },
+              ],
+            },
+            {
+              type: "box",
+              layout: "horizontal",
+              margin: "md",
+              contents: [
+                {
+                  type: "text",
+                  text: "สถานะการชำระเงิน",
+                  size: "sm",
+                  color: "#555555",
+                },
+                {
+                  type: "text",
+                  text: order.statusPaid,
+                  size: "sm",
+                  color: "#111111",
+                  align: "end",
+                },
+              ],
+            },
           ],
         },
         footer: {
@@ -143,7 +192,7 @@ export async function sendOrderNotification(
               action: {
                 type: "uri",
                 label: "ดูรายละเอียด",
-                uri: `https://yourwebsite.com/orders/${order.orderId}`,
+                uri: `https://backend.nattapad.me/line/login`,
               },
             },
           ],

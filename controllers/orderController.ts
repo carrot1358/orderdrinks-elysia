@@ -92,7 +92,21 @@ export const createOrder = async (c: Context) => {
 
   if (user.lineId) {
     try {
-      await sendOrderNotification(user.lineId, order);
+      const order_data = await Order.findOne({ orderId: order.orderId })
+        .populate({
+          path: "userId",
+          select: "name email phone avatar address createdAt lat lng",
+          localField: "userId",
+          foreignField: "userId",
+        })
+        .populate({
+          path: "products.productId",
+          model: "Product",
+          select: "name price imagePath",
+          localField: "productId",
+          foreignField: "productId",
+        });
+      await sendOrderNotification(user.lineId, order_data);
     } catch (error) {
       console.error(`ไม่สามารถส่งการแจ้งเตือน LINE ได้: ${error}`);
     }
