@@ -2,7 +2,6 @@ import { Elysia, t } from "elysia";
 import { Device, Order, User } from "~/models";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
-import { sendLineNotification } from "~/utils/lineNotification";
 import { handleDeviceMessage } from "~/controllers/deviceMessageController";
 import { handleFrontendMessage } from "~/controllers/frontendMessageController";
 

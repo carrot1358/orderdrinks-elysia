@@ -1,7 +1,6 @@
 import { Device, Order, User } from "~/models";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
-import { sendLineNotification } from "~/utils/lineNotification";
 import { sendTextMessage } from "~/utils/lineMessaging";
 
 export const handleDeviceMessage = (deviceid: string, message: any) => {
@@ -25,11 +24,11 @@ export const handleDeviceMessage = (deviceid: string, message: any) => {
           "deviceId" in data
         ) {
           updateDeviceLocation(deviceid, data);
-        } else if ("near_order" in data) {
-          handleNearOrder(deviceid, data);
         } else if ("lineId" in data) {
           if ("topic" in data && data.topic === "message") {
             handleLineMessage(deviceid, data);
+          } else if ("topic" in data && data.topic === "near_order") {
+            handleNearOrder(deviceid, data);
           }
         } else {
           console.log(`ไม่รู้จักประเภทข้อมูลจากอุปกรณ์ ${deviceid}:`, data);
@@ -109,14 +108,15 @@ async function handleNearOrder(deviceid: string, data: any) {
       throw new Error("ข้อมูลไม่ถูกต้องหรือไม่สมบูรณ์");
     }
 
-    const { orderId, userId, distance, latitude, longitude } = data;
+    const { orderId, userId, distance, latitude, longitude, lineId } = data;
 
     if (
       !orderId ||
       !userId ||
       typeof distance !== "number" ||
       !latitude ||
-      !longitude
+      !longitude ||
+      !lineId
     ) {
       throw new Error("ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง");
     }
@@ -139,7 +139,7 @@ async function handleNearOrder(deviceid: string, data: any) {
         return;
       }
 
-      await sendLineNotification(
+      await sendTextMessage(
         user.lineId,
         `คุณมีคำสั่งซื้ออยู่ที่ระยะห่างจากคุณ ${distance.toFixed(2)} กิโลเมตร`
       );
