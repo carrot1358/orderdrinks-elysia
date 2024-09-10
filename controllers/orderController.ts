@@ -21,7 +21,9 @@ interface Order_Interface {
  * @action ต้องผ่านการยืนยันตัวตน (auth)
  */
 export const createOrder = async (c: Context) => {
-  const userId = await getUserIdFromToken(c.headers.authorization || "");
+  const userId = (await getUserIdFromToken(
+    c.headers.authorization || ""
+  )) as string;
 
   if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
@@ -506,6 +508,7 @@ export const prepareDelivery = async (c: Context) => {
         orderId: order.orderId,
         userId: order.userId.userId,
         userName: order.userId.name,
+        lineId: order.userId.lineId,
         phone: order.userId.phone,
         latitude: order.userId.lat,
         longitude: order.userId.lng,
@@ -532,6 +535,7 @@ export const prepareDelivery = async (c: Context) => {
             orderId: order.orderId,
             userId: order.userId.userId,
             userName: order.userId.name,
+            lineId: order.userId.lineId,
             phone: order.userId.phone,
             latitude: order.userId.lat,
             longitude: order.userId.lng,
