@@ -40,6 +40,7 @@ networks:
   My-Orderdrinks:
     name: My-Orderdrinks
     driver: bridge
+    external: true
 
 volumes:
   mongodb_data:
