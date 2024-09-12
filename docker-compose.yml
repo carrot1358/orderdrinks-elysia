@@ -38,6 +38,7 @@ services:
 
 networks:
   My-Orderdrinks:
+    name: My-Orderdrinks
     driver: bridge
 
 volumes:
