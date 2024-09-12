@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ยินดีต้อนรับสู่โครงการ OrderDrinks</title>
+    <style>
+        body {
+            font-family: "Sarabun", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #27acb2;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .link {
+            display: inline-block;
+            background-color: #27acb2;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .link:hover {
+            background-color: #1f8a8e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ยินดีต้อนรับสู่โครงการ OrderDrinks</h1>
+        <p>
+            นี่คือ Backend API ของโครงการ OrderDrinks ที่พัฒนาขึ้นด้วย Bun และ
+            Elysia
+        </p>
+        <p>คุณสามารถเข้าถึงส่วนต่างๆ ของโครงการได้ดังนี้:</p>
+        <ul>
+            <li>
+                ทดสอบ API ด้วย Swagger:
+                <a href="/swagger" class="link">Swagger</a>
+            </li>
+            <li>URL เชื่อมต่อ WebSocket: <code>wss://backend.nattapad.me</code></li>
+            <li>
+                Login ด้วย Line:
+                <a href="/line/login" class="link"> /line/login</a>
+                </a>
+            </li>
+            <li>
+                CallBack URL:
+                <a href="/line/callback" class="link"> /line/callback</a>
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>

@@ -67,7 +67,10 @@ app.use(error());
 setupWebSocket(app);
 
 // Root Routes
-app.get("/", () => "Welcome to our API");
+app.get("/", ({ set }) => {
+  set.headers["Content-Type"] = "text/html";
+  return Bun.file("root.html");
+});
 
 // User Routes [api/v1/users]
 app.use(userRoutes);
