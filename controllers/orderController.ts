@@ -130,7 +130,20 @@ export const checkSlip = async (c: Context) => {
   const userId = await getUserIdFromToken(c.headers.authorization || "");
   const { orderId, slip } = c.body as any;
 
-  const order = await Order.findOne({ orderId, userId });
+  const order = await Order.findOne({ orderId, userId })
+    .populate({
+      path: "userId",
+      select: "name lineId email phone avatar address createdAt lat lng",
+      localField: "userId",
+      foreignField: "userId",
+    })
+    .populate({
+      path: "products.productId",
+      model: "Product",
+      select: "name price imagePath",
+      localField: "productId",
+      foreignField: "productId",
+    });
   if (!order) {
     c.set.status = 404;
     throw new Error("ไม่พบคำสั่งซื้อ");
@@ -248,7 +261,7 @@ export const getOrders = async (c: Context) => {
   const orders: Order_Interface[] | null = await Order.find()
     .populate({
       path: "userId",
-      select: "name email phone avatar address createdAt lat lng",
+      select: "name lineId email phone avatar address createdAt lat lng",
       localField: "userId",
       foreignField: "userId",
     })
@@ -289,7 +302,7 @@ export const getOrderById = async (c: Context<{ params: { id: string } }>) => {
   })
     .populate({
       path: "userId",
-      select: "name email phone avatarPath address latitude longitude",
+      select: "name lineId email phone avatarPath address latitude longitude",
       localField: "userId",
       foreignField: "userId",
     })
@@ -348,7 +361,7 @@ export const getMyOrder = async (c: Context) => {
   const orders: Order_Interface[] | null = await Order.find({ userId })
     .populate({
       path: "userId",
-      select: "name email phone avatarPath address latitude longitude",
+      select: "name lineId email phone avatarPath address latitude longitude",
       localField: "userId",
       foreignField: "userId",
     })
@@ -500,7 +513,7 @@ export const prepareDelivery = async (c: Context) => {
     })
       .populate({
         path: "userId",
-        select: "name email phone avatarPath address latitude longitude",
+        select: "name lineId email phone avatarPath address latitude longitude",
         localField: "userId",
         foreignField: "userId",
       })
