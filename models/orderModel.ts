@@ -18,6 +18,7 @@ interface Order {
   time_completed?: string;
   latitude?: number;
   longitude?: number;
+  distance?: number;
   deviceId?: string;
   bottle_image_path?: string;
 }
@@ -53,6 +54,7 @@ const orderSchema = new Schema<OrderDoc>(
     time_completed: { type: String },
     latitude: { type: Number },
     longitude: { type: Number },
+    distance: { type: Number },
     deviceId: { type: String, ref: "Device" },
     bottle_image_path: { type: String },
   },
