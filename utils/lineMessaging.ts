@@ -242,3 +242,31 @@ export async function sendOrderNotification(
     }
   }
 }
+
+export async function nearOrderNotification(
+  lineId: string,
+  order: any
+): Promise<void> {
+  try {
+    let message = "";
+    if (order.distance <= 1000 && order.distance > 500) {
+      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณประมาณ 1 กิโลเมตร`;
+    } else if (order.distance <= 500 && order.distance > 100) {
+      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณประมาณ 500 เมตร`;
+    } else if (order.distance <= 100) {
+      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณน้อยกว่า 100 เมตร`;
+    }
+
+    const textMessage: TextMessage = {
+      type: "text",
+      text: message,
+    };
+    await client.pushMessage(lineId, textMessage);
+  } catch (error) {
+    console.error(
+      "เกิดข้อผิดพลาดในการส่งการแจ้งเตือนคำสั่งซื้อถึง User ID:",
+      lineId,
+      error
+    );
+  }
+}
