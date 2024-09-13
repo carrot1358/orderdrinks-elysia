@@ -198,27 +198,28 @@ async function updateDeviceLocation(deviceid: string, data: any) {
         .lean()) as Order[];
 
       for (const order of deliveringOrders) {
-        console.log("order.userId.userId", order.userId.userId);
+        const _order: any = order;
+        console.log("order.userId.userId", _order.userId.userId);
 
         if (
-          order.userId &&
-          typeof order.userId === "object" &&
-          "lat" in order.userId &&
-          "lng" in order.userId
+          _order.userId &&
+          typeof _order.userId === "object" &&
+          "lat" in _order.userId &&
+          "lng" in _order.userId
         ) {
           const distance = Math.floor(
             calculateDistance(
               device.latitude,
               device.longitude,
-              order.userId.lat,
-              order.userId.lng
+              _order.userId.lat,
+              _order.userId.lng
             ) * 1000
           );
 
           console.log("distance", distance);
           console.log("-----------------------------------");
           await Order.findOneAndUpdate(
-            { orderId: order.orderId },
+            { orderId: _order.orderId },
             { $set: { distance: distance } },
             { new: true, runValidators: true }
           );
@@ -229,9 +230,9 @@ async function updateDeviceLocation(deviceid: string, data: any) {
 
           for (const notification of notifications) {
             if (distance <= notification.distance) {
-              await nearOrderNotification(order.userId.lineId, distance);
+              await nearOrderNotification(_order.userId.lineId, distance);
               console.log(
-                `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
+                `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร`
               );
               break;
             }
