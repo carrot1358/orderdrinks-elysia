@@ -2,6 +2,8 @@ import { Device, Order, User } from "~/models";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { sendTextMessage } from "~/utils/lineMessaging";
+import { nearOrderNotification } from "~/utils/lineMessaging";
+import { calculateDistance } from "~/utils/distance_measure";
 
 export const handleDeviceMessage = (deviceid: string, message: any) => {
   console.log(`Device message from device ${deviceid}:`);
@@ -161,17 +163,89 @@ async function handleNearOrder(deviceid: string, data: any) {
 
 async function updateDeviceLocation(deviceid: string, data: any) {
   try {
+    const latitude = parseFloat(data.latitude);
+    const longitude = parseFloat(data.longitude);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      throw new Error("ค่า latitude หรือ longitude ไม่ถูกต้อง");
+    }
+
     const device = await Device.findOneAndUpdate(
       { deviceId: deviceid },
-      {
-        latitude: data.latitude,
-        longitude: data.longitude,
-      },
+      { latitude, longitude },
       { new: true }
     );
 
     if (device) {
       console.log(`Device ${deviceid} location updated`);
+
+      const deliveringOrders = await Order.find({ deliverStatus: "delivering" })
+        .populate({
+          path: "userId",
+          select: "name lineId email phone avatarPath address lat lng",
+          localField: "userId",
+          foreignField: "userId",
+        })
+        .populate({
+          path: "products.productId",
+          model: "Product",
+          select: "name price imagePath",
+          localField: "productId",
+          foreignField: "productId",
+        })
+        .lean();
+
+      for (const order of deliveringOrders) {
+        console.log("orderId", order.orderId);
+        console.log("order.userId", order.userId);
+        console.log("order.userId.lat", order.userId.lat);
+        console.log("order.userId.lng", order.userId.lng);
+        console.log("device.latitude", device.latitude);
+        console.log("device.longitude", device.longitude);
+
+        if (order.userId && order.userId.lat && order.userId.lng) {
+          const distance =
+            calculateDistance(
+              device.latitude,
+              device.longitude,
+              order.userId.lat,
+              order.userId.lng
+            ) * 1000;
+
+          console.log("distance", distance);
+          await Order.findOneAndUpdate(
+            { orderId: order.orderId },
+            { $set: { distance: distance } },
+            { new: true, runValidators: true }
+          );
+
+          if (distance <= 1000 && distance > 500) {
+            await nearOrderNotification(order.userId.lineId, {
+              ...order,
+              distance,
+            });
+            console.log(
+              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} กิโลเมตร`
+            );
+          } else if (distance <= 500 && distance > 100) {
+            await nearOrderNotification(order.userId.lineId, {
+              ...order,
+              distance,
+            });
+            console.log(
+              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
+            );
+          } else if (distance <= 100) {
+            await nearOrderNotification(order.userId.lineId, {
+              ...order,
+              distance,
+            });
+            console.log(
+              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
+            );
+          }
+        }
+      }
     } else {
       console.log(`Device ${deviceid} not found`);
     }
