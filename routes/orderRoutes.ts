@@ -9,6 +9,8 @@ import {
   getMyOrder,
   prepareDelivery,
   updateOrder,
+  getOrderDelivery,
+  getOrderNotDone,
 } from "~/controllers";
 import { admin, auth, driver } from "~/middlewares";
 
@@ -62,6 +64,26 @@ const orderRoutes = (app: Elysia) => {
           tags: ["Order"],
           summary: "ดึงข้อมูลคำสั่งซื้อตาม ID",
           description: "ดึงข้อมูลคำสั่งซื้อตาม ID ที่ระบุ",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .get("/get-order-delivery", getOrderDelivery, {
+        beforeHandle: (c) => driver(c),
+        detail: {
+          tags: ["Order"],
+          summary: "ดึงข้อมูลคำสั่งซื้อที่กำลังจัดส่ง",
+          description: "ดึงข้อมูลคำสั่งซื้อที่กำลังจัดส่ง",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .get("/get-order-not-done", getOrderNotDone, {
+        beforeHandle: (c) => driver(c),
+        detail: {
+          tags: ["Order"],
+          summary: "ดึงข้อมูลคำสั่งซื้อที่ยังไม่เสร็จสมบูรณ์",
+          description: "ดึงข้อมูลคำสั่งซื้อที่ยังไม่เสร็จสมบูรณ์",
           security: [{ bearerAuth: [] }],
         },
       })

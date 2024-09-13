@@ -287,6 +287,78 @@ export const getOrders = async (c: Context) => {
 };
 
 /**
+ * @api [GET] /api/v1/orders/get-order-delivery
+ * @description ดึงข้อมูลคำสั่งซื้อที่กำลังจัดส่ง
+ * @action ต้องผ่านการยืนยันตัวตน (auth)
+ */
+export const getOrderDelivery = async (c: Context) => {
+  const orders: Order_Interface[] | null = await Order.find({
+    deliverStatus: "delivering",
+  })
+    .populate({
+      path: "userId",
+      select: "name lineId email phone avatar address createdAt lat lng",
+      localField: "userId",
+      foreignField: "userId",
+    })
+    .populate({
+      path: "products.productId",
+      model: "Product",
+      select: "name price imagePath",
+      localField: "productId",
+      foreignField: "productId",
+    });
+
+  if (!orders || orders.length === 0) {
+    c.set.status = 404;
+    throw new Error("ไม่พบคำสั่งซื้อที่กำลังจัดส่ง");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: orders,
+    message: "ดึงข้อมูลคำสั่งซื้อที่กำลังจัดส่งสำเร็จ",
+  };
+};
+
+/**
+ * @api [GET] /api/v1/orders/get-order-not-done
+ * @description ดึงข้อมูลคำสั่งซื้อที่ยังไม่เสร็จสมบูรณ์
+ * @action ต้องผ่านการยืนยันตัวตน (auth)
+ */
+export const getOrderNotDone = async (c: Context) => {
+  const orders: Order_Interface[] | null = await Order.find({
+    deliverStatus: { $ne: "delivered" },
+  })
+    .populate({
+      path: "userId",
+      select: "name lineId email phone avatar address createdAt lat lng",
+      localField: "userId",
+      foreignField: "userId",
+    })
+    .populate({
+      path: "products.productId",
+      model: "Product",
+      select: "name price imagePath",
+      localField: "productId",
+      foreignField: "productId",
+    });
+
+  if (!orders || orders.length === 0) {
+    c.set.status = 404;
+    throw new Error("ไม่พบคำสั่งซื้อที่ยังไม่เสร็จสมบูรณ์");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: orders,
+    message: "ดึงข้อมูลคำสั่งซื้อที่ยังไม่เสร็จสมบูรณ์สำเร็จ",
+  };
+};
+
+/**
  * @api [GET] /api/v1/orders/:id
  * @description ดึงข้อมูลคำสั่งซื้อตาม ID
  * @action ต้องผ่านการยืนยันตัวตน (auth)
