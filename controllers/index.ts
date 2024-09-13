@@ -7,3 +7,4 @@ export * from "./lineAuthController";
 export * from "./lineWebhook";
 export * from "./deviceMessageController";
 export * from "./frontendMessageController";
+export * from "./distanceNotificationController";

@@ -5,3 +5,4 @@ export { default as orderRoutes } from "./orderRoutes";
 export { default as paymentRoutes } from "./paymentRoutes";
 export { default as lineAuthRoutes } from "./lineAuth";
 export { default as lineWebhookRoutes } from "./lineWebhookRoutes";
+export { default as distanceNotificationRoutes } from "./distanceNotificationRoutes";

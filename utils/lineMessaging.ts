@@ -245,17 +245,10 @@ export async function sendOrderNotification(
 
 export async function nearOrderNotification(
   lineId: string,
-  order: any
+  distance: number
 ): Promise<void> {
   try {
-    let message = "";
-    if (order.distance <= 1000 && order.distance > 500) {
-      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณประมาณ 1 กิโลเมตร`;
-    } else if (order.distance <= 500 && order.distance > 100) {
-      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณประมาณ 500 เมตร`;
-    } else if (order.distance <= 100) {
-      message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณน้อยกว่า 100 เมตร`;
-    }
+    const message = `คำสั่งซื้อของคุณอยู่ห่างจากคุณ ${distance} เมตร`;
 
     const textMessage: TextMessage = {
       type: "text",

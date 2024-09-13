@@ -1,4 +1,4 @@
-import { Device, Order, User } from "~/models";
+import { Device, Order, User, DistanceNotification } from "~/models";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { sendTextMessage } from "~/utils/lineMessaging";
@@ -179,7 +179,9 @@ async function updateDeviceLocation(deviceid: string, data: any) {
     if (device) {
       console.log(`Device ${deviceid} location updated`);
 
-      const deliveringOrders = await Order.find({ deliverStatus: "delivering" })
+      const deliveringOrders = (await Order.find({
+        deliverStatus: "delivering",
+      })
         .populate({
           path: "userId",
           select: "name lineId email phone avatarPath address lat lng",
@@ -193,56 +195,46 @@ async function updateDeviceLocation(deviceid: string, data: any) {
           localField: "productId",
           foreignField: "productId",
         })
-        .lean();
+        .lean()) as Order[];
 
       for (const order of deliveringOrders) {
-        console.log("orderId", order.orderId);
-        console.log("order.userId", order.userId);
-        console.log("order.userId.lat", order.userId.lat);
-        console.log("order.userId.lng", order.userId.lng);
-        console.log("device.latitude", device.latitude);
-        console.log("device.longitude", device.longitude);
+        console.log("order.userId.userId", order.userId.userId);
 
-        if (order.userId && order.userId.lat && order.userId.lng) {
-          const distance =
+        if (
+          order.userId &&
+          typeof order.userId === "object" &&
+          "lat" in order.userId &&
+          "lng" in order.userId
+        ) {
+          const distance = Math.floor(
             calculateDistance(
               device.latitude,
               device.longitude,
               order.userId.lat,
               order.userId.lng
-            ) * 1000;
+            ) * 1000
+          );
 
           console.log("distance", distance);
+          console.log("-----------------------------------");
           await Order.findOneAndUpdate(
             { orderId: order.orderId },
             { $set: { distance: distance } },
             { new: true, runValidators: true }
           );
 
-          if (distance <= 1000 && distance > 500) {
-            await nearOrderNotification(order.userId.lineId, {
-              ...order,
-              distance,
-            });
-            console.log(
-              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} กิโลเมตร`
-            );
-          } else if (distance <= 500 && distance > 100) {
-            await nearOrderNotification(order.userId.lineId, {
-              ...order,
-              distance,
-            });
-            console.log(
-              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
-            );
-          } else if (distance <= 100) {
-            await nearOrderNotification(order.userId.lineId, {
-              ...order,
-              distance,
-            });
-            console.log(
-              `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
-            );
+          const notifications = await DistanceNotification.find().sort({
+            distance: -1,
+          });
+
+          for (const notification of notifications) {
+            if (distance <= notification.distance) {
+              await nearOrderNotification(order.userId.lineId, distance);
+              console.log(
+                `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${order.orderId} ระยะห่าง: ${distance} เมตร`
+              );
+              break;
+            }
           }
         }
       }
