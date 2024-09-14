@@ -230,10 +230,23 @@ async function updateDeviceLocation(deviceid: string, data: any) {
 
           for (const notification of notifications) {
             if (distance <= notification.distance) {
-              await nearOrderNotification(_order.userId.lineId, distance);
-              console.log(
-                `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร`
-              );
+              // ตรวจสอบว่าเคยแจ้งเตือนระยะนี้แล้วหรือยัง
+              if (
+                !_order.notifiedDistances ||
+                !_order.notifiedDistances.includes(notification.distance)
+              ) {
+                await nearOrderNotification(_order.userId.lineId, distance);
+                console.log(
+                  `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร`
+                );
+
+                // เพิ่มระยะทางที่แจ้งเตือนแล้วลงในฐานข้อมูล
+                await Order.findOneAndUpdate(
+                  { orderId: _order.orderId },
+                  { $addToSet: { notifiedDistances: notification.distance } },
+                  { new: true }
+                );
+              }
               break;
             }
           }
