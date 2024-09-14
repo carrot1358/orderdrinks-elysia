@@ -21,6 +21,7 @@ interface Order {
   distance?: number;
   deviceId?: string;
   bottle_image_path?: string;
+  notifiedDistances?: number[];
 }
 
 interface OrderDoc extends Order, Document {}
@@ -57,6 +58,7 @@ const orderSchema = new Schema<OrderDoc>(
     distance: { type: Number },
     deviceId: { type: String, ref: "Device" },
     bottle_image_path: { type: String },
+    notifiedDistances: { type: [Number] },
   },
   {
     timestamps: true,
