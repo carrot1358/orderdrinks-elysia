@@ -14,13 +14,14 @@ interface Order {
   statusPaid: "paid" | "not_paid" | "check_paid" | "wait_paid" | "error";
   deliverStatus: "pending" | "delivering" | "delivered" | "cancel";
   slipImage?: string;
+  deliver_image_path?: string;
+  bottle_image_path?: string;
   bottle_count?: number;
   time_completed?: string;
   latitude?: number;
   longitude?: number;
   distance?: number;
   deviceId?: string;
-  bottle_image_path?: string;
   notifiedDistances?: number[];
 }
 
@@ -58,6 +59,7 @@ const orderSchema = new Schema<OrderDoc>(
     distance: { type: Number },
     deviceId: { type: String, ref: "Device" },
     bottle_image_path: { type: String },
+    deliver_image_path: { type: String },
     notifiedDistances: { type: [Number] },
   },
   {
