@@ -135,8 +135,13 @@ const orderRoutes = (app: Elysia) => {
         },
       })
 
-      .put("/complete/:id", completeOrder, {
+      .put("/complete", completeOrder, {
         beforeHandle: (c) => admin(c),
+        body: t.Object({
+          deliverImage: t.File(),
+          orderId: t.String(),
+        }),
+        type: "multipart/form-data",
         detail: {
           tags: ["Order"],
           summary: "สำเร็จคำสั่งซื้อ",

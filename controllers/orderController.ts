@@ -552,30 +552,65 @@ export const cancelOrder = async (c: Context<{ params: { id: string } }>) => {
  * @description สำเร็จคำสั่งซื้อ
  * @action เฉพาะผู้ดูแลระบบ (admin)
  */
-export const completeOrder = async (c: Context<{ params: { id: string } }>) => {
-  if (!c.params?.id) {
-    c.set.status = 400;
-    throw new Error("ไม่ได้ระบุ ID คำสั่งซื้อ");
-  }
+export const completeOrder = async (c: Context) => {
+  const { orderId, deliverImage } = c.body as any;
 
-  const order = await Order.findOneAndUpdate(
-    { orderId: c.params.id },
-    { deliverStatus: "delivered" },
-    { new: true }
-  );
+  const order = await Order.findOne({ orderId });
 
   if (!order) {
     c.set.status = 404;
     throw new Error("ไม่พบคำสั่งซื้อ");
-  } else {
-    c.set.status = 200;
-    return {
-      status: c.set.status,
-      success: true,
-      data: order,
-      message: "สำเร็จคำสั่งซื้อและอัปเดตสถานะการจัดส่งเป็น 'delivered'",
-    };
   }
+
+  order.deliverStatus = "delivered";
+
+  //save image to image/deliver
+  const imagePath = join(process.cwd(), "image", "deliver");
+  try {
+    await mkdir(imagePath, { recursive: true });
+  } catch (error: any) {
+    if (error.code !== "EEXIST") {
+      console.error("ไม่สามารถสร้างไดเรกทอรีสำหรับเก็บรูปภาพได้:", error);
+      throw new Error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
+    }
+  }
+
+  const fileExtension = deliverImage.name.split(".").pop();
+  const fileName = `${orderId}.${fileExtension}`;
+  const filePath = join(imagePath, fileName);
+
+  try {
+    const buffer = Buffer.from(await deliverImage.arrayBuffer());
+    await writeFile(filePath, buffer);
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ:", error);
+    throw new Error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
+  }
+
+  //send need bottle image to device via websocket
+  const deviceConnections = getDeviceConnections();
+  deviceConnections.forEach((ws: any) => {
+    ws.send(
+      JSON.stringify({
+        sendto: "device",
+        body: {
+          topic: "need_bottle_image",
+          orderId: orderId,
+        },
+      })
+    );
+  });
+
+  order.deliver_image_path = `/image/deliver/${fileName}`;
+  await order.save();
+
+  c.set.status = 200;
+  return {
+    status: c.set.status,
+    success: true,
+    data: order,
+    message: "สำเร็จคำสั่งซื้อและอัปเดตสถานะการจัดส่งเป็น 'delivered'",
+  };
 };
 
 export const prepareDelivery = async (c: Context) => {
