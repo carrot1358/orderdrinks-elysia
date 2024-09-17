@@ -37,16 +37,27 @@ git clone https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia.git
 cd orderdrinks-elysia
 ```
 
-2.2 สร้างไฟล์ `.env` และตั้งค่าตามต้องการ
+2.2 เปลี่ยนชื่อไฟล์ .env.example เป็น .env และตั้งค่าตามต้องการ
+
+```bash
+mv .env.example .env
+nano .env
+```
+
+2.3 สร้าง Network สำหรับ Docker
+
+```bash
+docker network create My-Orderdrinks
+```
+
+2.4 สร้างFolder สำหรับเก็บรูปภาพของ MongoDB
+
+```bash
+mkdir image
+```
 
 2.3 Build docker-compose
 
 ```bash
 docker-compose up -d --build
-```
-
-2.4 ตรวจสอบการทำงานของ Docker
-
-```bash
-docker logs orderdrinks-elysia
 ```
