@@ -19,10 +19,12 @@
     "elysia": "^1.1.7",
     "jose": "^4.15.4",
     "mongoose": "^7.4.5",
+    "pdfkit": "^0.15.0",
     "picocolors": "^1.0.0"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
+    "@types/pdfkit": "^0.13.5",
     "bun-types": "latest"
   },
   "module": "index.ts"
