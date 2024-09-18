@@ -8,6 +8,8 @@ import {
   paymentRoutes,
   lineAuthRoutes,
   lineWebhookRoutes,
+  filterReportRoutes,
+  reportRoute,
 } from "./routes";
 import { error, logger } from "./middlewares";
 import { connectDB } from "./config";
@@ -92,6 +94,12 @@ app.use(lineAuthRoutes);
 
 // Line Webhook Routes
 app.use(lineWebhookRoutes);
+
+// Report Routes
+app.use(reportRoute);
+
+// Filter Report Routes
+app.use(filterReportRoutes);
 
 // Static Route for 'image' folder
 app.use(

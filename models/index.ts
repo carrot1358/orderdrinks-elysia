@@ -4,3 +4,6 @@ export { default as Device } from "./deviceModel";
 export { default as Order } from "./orderModel";
 export { default as Payment } from "./paymentModel";
 export { default as DistanceNotification } from "./distanceNotificationModel";
+export { default as FilterRefill } from "./filterRefillModel";
+export { default as FilterChange } from "./filterChangeModel";
+export { default as FilterCleaning } from "./filterCleaningModel";

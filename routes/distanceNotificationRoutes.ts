@@ -1,11 +1,11 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import {
   getDistanceNotifications,
   createDistanceNotification,
   updateDistanceNotification,
   deleteDistanceNotification,
 } from "~/controllers/distanceNotificationController";
-import { driver } from "~/middlewares/auth";
+import { driver } from "~/middlewares";
 
 const distanceNotificationRoutes = (app: Elysia) => {
   return app
