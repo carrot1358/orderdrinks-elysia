@@ -160,19 +160,25 @@ export const confirmExistedUser = async (c: Context) => {
 
     // lineAvatar url to file
     try {
-      const lineAvatar = await fetch(userLine.lineAvatar);
-      const buffer = Buffer.from(await lineAvatar.arrayBuffer());
-      const fileExtension = userLine.lineAvatar.split(".").pop();
-      const fileName = `${user.userId}.${fileExtension}`;
-      const filePath = join(process.cwd(), "image", "avatars");
-      await mkdir(filePath, { recursive: true });
-      await writeFile(join(filePath, fileName), buffer);
+      if (userLine.lineAvatar) {
+        const lineAvatar = await fetch(userLine.lineAvatar);
+        if (!lineAvatar.ok)
+          throw new Error(`HTTP error! status: ${lineAvatar.status}`);
 
-      // update user
-      user.avatar = `/image/avatars/${fileName}`;
+        const buffer = await lineAvatar.arrayBuffer();
+        const fileExtension = "jpg"; // กำหนดนามสกุลไฟล์เป็น jpg เสมอ เนื่องจาก LINE ใช้ JPEG
+        const fileName = `${user.userId}.${fileExtension}`;
+        const filePath = join(process.cwd(), "image", "avatars");
+        await mkdir(filePath, { recursive: true });
+        await writeFile(join(filePath, fileName), Buffer.from(buffer));
+
+        // update user
+        user.avatar = `/image/avatars/${fileName}`;
+      }
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการบันทึกรูปภาพ:", error);
       // ดำเนินการต่อโดยไม่มีรูปภาพ
+      user.avatar = userLine.lineAvatar; // ใช้ URL เดิมถ้าไม่สามารถบันทึกได้
     }
 
     user.lineName = userLine.lineName;
