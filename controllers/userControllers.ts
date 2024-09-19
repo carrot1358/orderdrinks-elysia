@@ -129,63 +129,80 @@ export const loginUser = async (c: Context) => {
  * @action สาธารณะ
  */
 export const confirmExistedUser = async (c: Context) => {
-  if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
+  try {
+    if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
-  const { phone, passwordConfirmExisted, lineId } = c.body as any;
+    const { phone, passwordConfirmExisted, lineId } = c.body as any;
 
-  if (!phone || !passwordConfirmExisted || !lineId)
-    throw new Error("ข้อมูลไม่ถูกต้อง");
+    if (!phone || !passwordConfirmExisted || !lineId)
+      throw new Error("ข้อมูลไม่ถูกต้อง");
 
-  const user = await User.findOne({ phone });
-  const userLine = await User.findOne({ lineId });
+    const user = await User.findOne({ phone });
+    if (!user) {
+      c.set.status = 404;
+      return { success: false, message: "ไม่พบผู้ใช้" };
+    }
 
-  if (!user) {
-    c.set.status = 404;
-    throw new Error("ไม่พบผู้ใช้");
+    const userLine = await User.findOne({ lineId });
+    if (!userLine) {
+      c.set.status = 400;
+      return {
+        success: false,
+        message: "ผู้ใช้นี้ยังไม่ได้เข้าสู่ระบบผ่าน LINE",
+      };
+    }
+
+    const isMatch = user.passwordConfirmExisted === passwordConfirmExisted;
+    if (!isMatch) {
+      c.set.status = 401;
+      return { success: false, message: "รหัสผ่านยืนยันไม่ตรงกัน" };
+    }
+
+    // lineAvatar url to file
+    try {
+      const lineAvatar = await fetch(userLine.lineAvatar);
+      const buffer = Buffer.from(await lineAvatar.arrayBuffer());
+      const fileExtension = userLine.lineAvatar.split(".").pop();
+      const fileName = `${user.userId}.${fileExtension}`;
+      const filePath = join(process.cwd(), "image", "avatars");
+      await mkdir(filePath, { recursive: true });
+      await writeFile(join(filePath, fileName), buffer);
+
+      // update user
+      user.avatar = `/image/avatars/${fileName}`;
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการบันทึกรูปภาพ:", error);
+      // ดำเนินการต่อโดยไม่มีรูปภาพ
+    }
+
+    user.lineName = userLine.lineName;
+    user.lineAvatar = userLine.lineAvatar;
+    user.lineId = lineId;
+    await user.save();
+    await userLine.deleteOne();
+
+    // Generate token
+    const accessToken = await jwt.sign({
+      data: {
+        userId: user.userId,
+        name: user.name,
+        phone: user.phone,
+        isAdmin: user.isAdmin,
+        role: user.role,
+      },
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: "ยืนยันผู้ใช้สำเร็จ",
+      data: { accessToken },
+    };
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดใน confirmExistedUser:", error);
+    c.set.status = 500;
+    return { success: false, message: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" };
   }
-  if (!userLine) {
-    c.set.status = 400;
-    throw new Error("ผู้ใช้นี้ยังไม่ได้เข้าสู่ระบบผ่าน LINE");
-  }
-  const isMatch = user.passwordConfirmExisted === passwordConfirmExisted;
-  if (!isMatch) {
-    c.set.status = 401;
-    throw new Error("รหัสผ่านยืนยันไม่ตรงกัน");
-  }
-
-  // lineAvatar url to file
-  const lineAvatar = await fetch(userLine.lineAvatar);
-  const buffer = Buffer.from(await lineAvatar.arrayBuffer());
-  const fileExtension = userLine.lineAvatar.split(".").pop();
-  const fileName = `${user.userId}.${fileExtension}`;
-  const filePath = join(process.cwd(), "image", "avatars");
-  await mkdir(filePath, { recursive: true });
-  await writeFile(join(filePath, fileName), buffer);
-
-  // update user
-  user.avatar = `/image/avatars/${fileName}`;
-  user.lineName = userLine.lineName;
-  user.lineAvatar = userLine.lineAvatar;
-  user.lineId = lineId;
-  await user.save();
-  await userLine.deleteOne();
-
-  // Generate token
-  const accessToken = await jwt.sign({
-    data: {
-      userId: user.userId,
-      name: user.name,
-      phone: user.phone,
-      isAdmin: user.isAdmin,
-      role: user.role,
-    },
-  });
-  return {
-    status: c.set.status,
-    success: true,
-    message: "ยืนยันผู้ใช้สำเร็จ",
-    data: { accessToken },
-  };
 };
 
 /**
