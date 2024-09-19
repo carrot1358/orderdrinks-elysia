@@ -133,22 +133,44 @@ export const confirmExistedUser = async (c: Context) => {
 
   const { phone, passwordConfirmExisted, lineId } = c.body as any;
 
+  if (!phone || !passwordConfirmExisted || !lineId)
+    throw new Error("ข้อมูลไม่ถูกต้อง");
+
   const user = await User.findOne({ phone });
+  const userLine = await User.findOne({ lineId });
 
   if (!user) {
     c.set.status = 404;
     throw new Error("ไม่พบผู้ใช้");
   }
-
+  if (!userLine) {
+    c.set.status = 400;
+    throw new Error("ผู้ใช้นี้ยังไม่ได้เข้าสู่ระบบผ่าน LINE");
+  }
   const isMatch = user.passwordConfirmExisted === passwordConfirmExisted;
   if (!isMatch) {
     c.set.status = 401;
     throw new Error("รหัสผ่านยืนยันไม่ตรงกัน");
   }
 
+  // lineAvatar url to file
+  const lineAvatar = await fetch(userLine.lineAvatar);
+  const buffer = Buffer.from(await lineAvatar.arrayBuffer());
+  const fileExtension = userLine.lineAvatar.split(".").pop();
+  const fileName = `${user.userId}.${fileExtension}`;
+  const filePath = join(process.cwd(), "image", "avatars");
+  await mkdir(filePath, { recursive: true });
+  await writeFile(join(filePath, fileName), buffer);
+
+  // update user
+  user.avatar = `/image/avatars/${fileName}`;
+  user.lineName = userLine.lineName;
+  user.lineAvatar = userLine.lineAvatar;
   user.lineId = lineId;
   await user.save();
+  await userLine.deleteOne();
 
+  // Generate token
   const accessToken = await jwt.sign({
     data: {
       userId: user.userId,
