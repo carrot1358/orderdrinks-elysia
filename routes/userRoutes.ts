@@ -22,9 +22,10 @@ const userRoutes = (app: Elysia) => {
           password: t.String(),
           isAdmin: t.Optional(t.String()),
           role: t.Optional(t.String()),
-          passwordConfirmExisted: t.String(),
+          passwordConfirmExisted: t.Optional(t.String()),
           lat: t.Optional(t.String()),
           lng: t.Optional(t.String()),
+          address: t.Optional(t.String()),
         }),
         type: "formdata",
         detail: {

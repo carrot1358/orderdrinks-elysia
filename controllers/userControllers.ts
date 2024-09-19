@@ -23,6 +23,7 @@ export const createUser = async (c: Context) => {
     passwordConfirmExisted,
     lat,
     lng,
+    address,
   } = c.body as any;
 
   const phoneExists = await User.findOne({ phone });
@@ -45,6 +46,7 @@ export const createUser = async (c: Context) => {
     passwordConfirmExisted,
     lat: lat ? parseFloat(lat) : null,
     lng: lng ? parseFloat(lng) : null,
+    address: address || null,
   });
 
   if (!_user) {
