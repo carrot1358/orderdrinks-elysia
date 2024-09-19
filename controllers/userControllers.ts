@@ -14,8 +14,16 @@ export const createUser = async (c: Context) => {
   //   Check for body
   if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
-  const { name, password, isAdmin, role, phone, passwordConfirmExisted } =
-    c.body as any;
+  const {
+    name,
+    password,
+    isAdmin,
+    role,
+    phone,
+    passwordConfirmExisted,
+    lat,
+    lng,
+  } = c.body as any;
 
   const phoneExists = await User.findOne({ phone });
   if (phoneExists) {
@@ -35,6 +43,8 @@ export const createUser = async (c: Context) => {
     isAdmin: isAdmin === "true" ? true : false,
     role: role || "user",
     passwordConfirmExisted,
+    lat: lat ? parseFloat(lat) : null,
+    lng: lng ? parseFloat(lng) : null,
   });
 
   if (!_user) {
