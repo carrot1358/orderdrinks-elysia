@@ -7,8 +7,9 @@ import {
   getUsers,
   loginUser,
   updateUser,
+  confirmExistedUser,
 } from "~/controllers";
-import { admin, auth } from "~/middlewares";
+import { admin, auth, driver } from "~/middlewares";
 
 const userRoutes = (app: Elysia) => {
   app.group("/api/v1/users", (app) =>
@@ -21,6 +22,7 @@ const userRoutes = (app: Elysia) => {
           password: t.String(),
           isAdmin: t.Optional(t.String()),
           role: t.Optional(t.String()),
+          passwordConfirmExisted: t.Optional(t.String()),
         }),
         type: "formdata",
         detail: {
@@ -44,8 +46,22 @@ const userRoutes = (app: Elysia) => {
         },
       })
 
+      .post("/confirm-existed-user", confirmExistedUser, {
+        body: t.Object({
+          phone: t.String(),
+          passwordConfirmExisted: t.String(),
+          lineId: t.String(),
+        }),
+        type: "formdata",
+        detail: {
+          tags: ["User"],
+          summary: "ยืนยันผู้ใช้เดียวกันจากระบบอื่น",
+          description: "ยืนยันผู้ใช้เดียวกันจากระบบอื่น",
+        },
+      })
+
       .get("/", getUsers, {
-        beforeHandle: (c) => admin(c),
+        beforeHandle: (c) => driver(c),
         detail: {
           tags: ["User"],
           summary: "ดึงข้อมูลผู้ใช้ทั้งหมด",

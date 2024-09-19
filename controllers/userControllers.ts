@@ -14,7 +14,8 @@ export const createUser = async (c: Context) => {
   //   Check for body
   if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
 
-  const { name, password, isAdmin, role, phone } = c.body as RegBody;
+  const { name, password, isAdmin, role, phone, passwordConfirmExisted } =
+    c.body as any;
 
   const phoneExists = await User.findOne({ phone });
   if (phoneExists) {
@@ -33,6 +34,7 @@ export const createUser = async (c: Context) => {
     phone,
     isAdmin: isAdmin === "true" ? true : false,
     role: role || "user",
+    passwordConfirmExisted,
   });
 
   if (!_user) {
@@ -91,7 +93,13 @@ export const loginUser = async (c: Context) => {
 
   // Generate token
   const accessToken = await jwt.sign({
-    data: { userId: user.userId, isAdmin: user.isAdmin, role: user.role },
+    data: {
+      userId: user.userId,
+      name: user.name,
+      phone: user.phone,
+      isAdmin: user.isAdmin,
+      role: user.role,
+    },
   });
 
   // Return success response
@@ -100,6 +108,49 @@ export const loginUser = async (c: Context) => {
     success: true,
     data: { accessToken },
     message: "เข้าสู่ระบบสำเร็จ",
+  };
+};
+
+/**
+ * @api [POST] /api/v1/users/confirm-existed-user
+ * @description ยืนยันผู้ใช้เดียวกันจากระบบอื่น
+ * @action สาธารณะ
+ */
+export const confirmExistedUser = async (c: Context) => {
+  if (!c.body) throw new Error("ไม่มีข้อมูลที่ส่งมา");
+
+  const { phone, passwordConfirmExisted, lineId } = c.body as any;
+
+  const user = await User.findOne({ phone });
+
+  if (!user) {
+    c.set.status = 404;
+    throw new Error("ไม่พบผู้ใช้");
+  }
+
+  const isMatch = user.passwordConfirmExisted === passwordConfirmExisted;
+  if (!isMatch) {
+    c.set.status = 401;
+    throw new Error("รหัสผ่านยืนยันไม่ตรงกัน");
+  }
+
+  user.lineId = lineId;
+  await user.save();
+
+  const accessToken = await jwt.sign({
+    data: {
+      userId: user.userId,
+      name: user.name,
+      phone: user.phone,
+      isAdmin: user.isAdmin,
+      role: user.role,
+    },
+  });
+  return {
+    status: c.set.status,
+    success: true,
+    message: "ยืนยันผู้ใช้สำเร็จ",
+    data: { accessToken },
   };
 };
 

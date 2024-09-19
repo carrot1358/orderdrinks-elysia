@@ -15,6 +15,7 @@ interface User {
   lineId: string;
   avatar: string;
   lineAvatar: string;
+  passwordConfirmExisted: string;
 }
 
 interface UserDoc extends User, Document {
@@ -42,6 +43,7 @@ const userSchema = new Schema<UserDoc>(
     address: { type: String },
     lng: { type: Number },
     lat: { type: Number },
+    passwordConfirmExisted: { type: String },
   },
   {
     timestamps: true,
