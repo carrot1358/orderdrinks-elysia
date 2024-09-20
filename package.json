@@ -16,9 +16,11 @@
     "@elysiajs/static": "^1.1.0",
     "@elysiajs/swagger": "^1.1.1",
     "@line/bot-sdk": "^9.3.1",
+    "@types/node-cron": "^3.0.11",
     "elysia": "^1.1.7",
     "jose": "^4.15.4",
     "mongoose": "^7.4.5",
+    "node-cron": "^3.0.3",
     "pdfkit": "^0.15.0",
     "picocolors": "^1.0.0"
   },
