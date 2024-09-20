@@ -19,6 +19,8 @@ import { staticPlugin } from "@elysiajs/static";
 import { cors } from "@elysiajs/cors";
 import { User } from "~/models";
 import { createDefaultPayment } from "~/controllers";
+import cron from "node-cron";
+import { checkAndSendMaintenanceNotifications } from "./utils";
 
 // Create Elysia instance
 const app = new Elysia();
@@ -108,6 +110,12 @@ app.use(
     prefix: "/image",
   })
 );
+
+// ตั้งเวลาให้ทำงานทุกวันเวลา 00:00
+cron.schedule("0 0 * * *", async () => {
+  console.log("กำลังตรวจสอบการบำรุงรักษา...");
+  await checkAndSendMaintenanceNotifications();
+});
 
 // Start the server
 app.listen(Bun.env.PORT || 9000);

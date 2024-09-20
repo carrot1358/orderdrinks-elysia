@@ -1,4 +1,5 @@
 import { Client, TextMessage, FlexMessage } from "@line/bot-sdk";
+import { User } from "~/models";
 
 const backendUrl = "https://backend.nattapad.me";
 
@@ -261,5 +262,23 @@ export async function nearOrderNotification(
       lineId,
       error
     );
+  }
+}
+
+export async function sendMaintenanceNotification(
+  message: string
+): Promise<void> {
+  try {
+    const adminUsers = await User.find({ role: "admin" });
+
+    for (const user of adminUsers) {
+      if (user.lineId) {
+        await sendTextMessage(user.lineId, message);
+      }
+    }
+
+    console.log("ส่งการแจ้งเตือนการบำรุงรักษาสำเร็จ");
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการส่งการแจ้งเตือนการบำรุงรักษา:", error);
   }
 }
