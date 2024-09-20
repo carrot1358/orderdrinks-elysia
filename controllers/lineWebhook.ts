@@ -1,6 +1,6 @@
-import { WebhookEvent, Client, middleware } from "@line/bot-sdk";
+import { WebhookEvent, Client, middleware, TextMessage, FlexMessage } from "@line/bot-sdk";
 
-const config = {
+export const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
   channelSecret: Bun.env.LINE_CHANNEL_SECRET || "",
 };
@@ -16,25 +16,169 @@ const client = new Client(config);
 export const handleWebhook = async (body: any) => {
   try {
     console.log("Received webhook payload:", body);
-
+  
     if (body && "events" in body && Array.isArray(body.events)) {
       const events: WebhookEvent[] = body.events;
 
       await Promise.all(
         events.map(async (event) => {
           if (event.type === "message" && event.message.type === "text") {
-            const { replyToken } = event;
             const { text } = event.message;
+            const { replyToken } = event;
             const userId = event.source.userId;
 
-            console.log(
-              `Received message - User ID: ${userId}, Message: ${text}`
-            );
+            console.log(`ได้รับข้อความ - User ID: ${userId}, ข้อความ: ${text}`);
 
-            await client.replyMessage(replyToken, {
-              type: "text",
-              text: `คุณส่งข้อความ: ${text}`,
-            });
+            if (text === "ข้อมูล") {
+              const quickReplyMessage: TextMessage = {
+                type: 'text',
+                text: 'กรุณาเลือกรายการ',
+                quickReply: {
+                  items: [
+                    {
+                      type: 'action',
+                      action: {
+                        type: 'message',
+                        label: 'รายการสินค้า',
+                        text: 'สินค้า'
+                      }
+                    },
+                    {
+                      type: 'action',
+                      action: {
+                        type: 'message',
+                        label: 'ข้อมูลโรงงาน',
+                        text: 'ข้อมูลโรงงาน'
+                      }
+                    }
+                  ]
+                }
+              };
+
+              try {
+                await client.replyMessage(replyToken, quickReplyMessage);
+              } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
+            } else if (text === 'ข้อมูลโรงงาน') {
+              const flexMessage: FlexMessage = {
+                type: 'flex',
+                altText: 'ข้อมูลโรงงาน',
+                contents: {
+                  type: 'bubble',
+                  hero: {
+                    type: 'image',
+                    url: 'https://example.com/path/to/your/factory-image.jpg',
+                    size: 'full',
+                    aspectRatio: '20:13',
+                    aspectMode: 'cover'
+                  },
+                  body: {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'text',
+                        text: 'ข้อมูลโรงงาน',
+                        weight: 'bold',
+                        size: 'xl'
+                      },
+                      {
+                        type: 'box',
+                        layout: 'vertical',
+                        margin: 'lg',
+                        spacing: 'sm',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'baseline',
+                            spacing: 'sm',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: 'ชื่อ',
+                                color: '#aaaaaa',
+                                size: 'sm',
+                                flex: 1
+                              },
+                              {
+                                type: 'text',
+                                text: 'บริษัท ABC จำกัด',
+                                wrap: true,
+                                color: '#666666',
+                                size: 'sm',
+                                flex: 5
+                              }
+                            ]
+                          },
+                          {
+                            type: 'box',
+                            layout: 'baseline',
+                            spacing: 'sm',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: 'ที่อยู่',
+                                color: '#aaaaaa',
+                                size: 'sm',
+                                flex: 1
+                              },
+                              {
+                                type: 'text',
+                                text: '123 ถนนสุขุมวิท กรุงเทพฯ',
+                                wrap: true,
+                                color: '#666666',
+                                size: 'sm',
+                                flex: 5
+                              }
+                            ]
+                          },
+                          {
+                            type: 'box',
+                            layout: 'baseline',
+                            spacing: 'sm',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: 'เบอร์โทร',
+                                color: '#aaaaaa',
+                                size: 'sm',
+                                flex: 1
+                              },
+                              {
+                                type: 'text',
+                                text: '02-123-4567',
+                                wrap: true,
+                                color: '#666666',
+                                size: 'sm',
+                                flex: 5
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              };
+
+              try {
+                await client.replyMessage(replyToken, flexMessage);
+              } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
+            } else {
+              const replyMessage: TextMessage = {
+                type: 'text',
+                text: `คุณได้ส่งข้อความ "${text}"`
+              };
+
+              try {
+                await client.replyMessage(replyToken, replyMessage);
+              } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
+            }
           }
         })
       );
