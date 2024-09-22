@@ -10,6 +10,9 @@ export const handleDeviceMessage = (deviceid: string, message: any) => {
   if (typeof message === "object" && message !== null) {
     try {
       const payload = message as Record<string, unknown>;
+      console.log("Device message", payload);
+      console.log("Device message type", typeof payload);
+      console.log("Device message from", deviceid);
       if (payload.sendto === "backend" && typeof payload.body === "object") {
         const data = payload.body as Record<string, unknown>;
         if (

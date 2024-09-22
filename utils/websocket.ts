@@ -51,7 +51,6 @@ export function setupWebSocket(app: Elysia) {
   return app;
 }
 
-// ย้ายฟังก์ชัน sendMessage มาไว้นอก setupWebSocket
 export function sendMessage(target: "frontend" | "device", message: string) {
   const connections =
     target === "frontend" ? frontendConnections : deviceConnections;
