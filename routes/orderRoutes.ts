@@ -138,7 +138,7 @@ const orderRoutes = (app: Elysia) => {
       .put("/complete", completeOrder, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
-          deliverImage: t.File(),
+          deliverImage: t.Optional(t.File()),
           orderId: t.String(),
         }),
         type: "multipart/form-data",
