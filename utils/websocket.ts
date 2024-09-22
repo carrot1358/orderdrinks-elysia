@@ -21,6 +21,9 @@ export function setupWebSocket(app: Elysia) {
     },
     message(ws, message) {
       const userid = ws.data.params.userid;
+      console.log("Frontend message", message);
+      console.log("Frontend message type", typeof message);
+      console.log("Frontend message from", userid);
       handleFrontendMessage(userid, message);
     },
     close(ws) {
@@ -39,6 +42,9 @@ export function setupWebSocket(app: Elysia) {
     },
     message(ws, message) {
       const deviceid = ws.data.params.deviceid;
+      console.log("Device message", message);
+      console.log("Device message type", typeof message);
+      console.log("Device message from", deviceid);
       handleDeviceMessage(deviceid, message);
     },
     close(ws) {
