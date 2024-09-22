@@ -7,4 +7,4 @@ export { default as lineAuthRoutes } from "./lineAuth";
 export { default as lineWebhookRoutes } from "./lineWebhookRoutes";
 export { default as distanceNotificationRoutes } from "./distanceNotificationRoutes";
 export { default as filterReportRoutes } from "./filterReportRoutes";
-export { default as reportRoute } from "./reportRoute";
+export { default as reportRoute } from "./reportRoutes";
