@@ -4,6 +4,7 @@ import { join } from "path";
 import { sendTextMessage } from "~/utils/lineMessaging";
 import { nearOrderNotification } from "~/utils/lineMessaging";
 import { calculateDistance } from "~/utils/distance_measure";
+import { getFrontendConnections } from "~/utils/websocket";
 
 export const handleDeviceMessage = (deviceid: string, message: any) => {
   console.log(`Device message from device ${deviceid}:`);
@@ -35,6 +36,15 @@ export const handleDeviceMessage = (deviceid: string, message: any) => {
         } else {
           console.log(`ไม่รู้จักประเภทข้อมูลจากอุปกรณ์ ${deviceid}:`, data);
         }
+      } else if (
+        payload.sendto === "both" &&
+        typeof payload.body === "object"
+      ) {
+        const frontendConnections = getFrontendConnections();
+        frontendConnections.forEach((frontendWs) => {
+          frontendWs.send(JSON.stringify(message));
+        });
+        console.log(`ส่งข้อความไปยัง frontend ทั้งหมด:`, message);
       } else {
         console.log(
           `ข้อความไม่ได้ส่งถึง backend หรือไม่มี body จากอุปกรณ์ ${deviceid}:`,
