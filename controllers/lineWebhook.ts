@@ -68,7 +68,7 @@ export const handleWebhook = async (body: any) => {
                   type: 'bubble',
                   hero: {
                     type: 'image',
-                    url: 'https://example.com/path/to/your/factory-image.jpg',
+                    url: 'https://img5.pic.in.th/file/secure-sv1/461045833_1902028550281385_86939055569419391_n.jpg',
                     size: 'full',
                     aspectRatio: '20:13',
                     aspectMode: 'cover'
@@ -103,7 +103,7 @@ export const handleWebhook = async (body: any) => {
                               },
                               {
                                 type: 'text',
-                                text: 'บริษัท ABC จำกัด',
+                                text: 'โรงงานภาณุวัฒน์Water',
                                 wrap: true,
                                 color: '#666666',
                                 size: 'sm',
@@ -125,7 +125,7 @@ export const handleWebhook = async (body: any) => {
                               },
                               {
                                 type: 'text',
-                                text: '123 ถนนสุขุมวิท กรุงเทพฯ',
+                                text: '280 หมู่.3 ต.บึงเนียม อ.เมือง จ.ขอนแก่น 40000',
                                 wrap: true,
                                 color: '#666666',
                                 size: 'sm',
@@ -147,7 +147,7 @@ export const handleWebhook = async (body: any) => {
                               },
                               {
                                 type: 'text',
-                                text: '02-123-4567',
+                                text: '081-545-268-1',
                                 wrap: true,
                                 color: '#666666',
                                 size: 'sm',
