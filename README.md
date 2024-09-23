@@ -1,10 +1,12 @@
+fork from [elysia-api-starter](https://github.com/ProMehedi/elysia-api-starter)
+
 # ส่วนประกอบของโครงการ
 
 ### Git FrontEnd VueJS : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs)] [[GitHub](https://github.com/carrot1358/orderdrinks-vuejs)]
 
 ### Git BackEnd Elysia : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia)] [[GitHub](https://github.com/carrot1358/orderdrinks-elysia)] (คุณอยู่ที่นี่)
 
-### Git สำหรับ Hardware(Raspberry Pi) : [[GitLab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git)]
+### Git สำหรับ Hardware(Raspberry Pi) : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git) [Github](https://github.com/carrot1358/orderdrinks-hw)
 
 # การติดตั้งและการตั้งค่า
 
