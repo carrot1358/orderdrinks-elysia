@@ -9,6 +9,7 @@ import { handleFrontendMessage } from "~/controllers/frontendMessageController";
 const frontendConnections = new Map();
 const deviceConnections = new Map();
 
+export const getFrontendConnections = () => frontendConnections;
 export const getDeviceConnections = () => deviceConnections;
 
 export function setupWebSocket(app: Elysia) {
