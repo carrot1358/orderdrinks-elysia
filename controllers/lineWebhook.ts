@@ -1,4 +1,5 @@
-import { WebhookEvent, Client, middleware, TextMessage, FlexMessage } from "@line/bot-sdk";
+import { WebhookEvent, Client, middleware, TextMessage, FlexMessage, FlexBubble, FlexCarousel } from "@line/bot-sdk";
+import { Product } from "~/models";
 
 export const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -154,6 +155,102 @@ export const handleWebhook = async (body: any) => {
                 await client.replyMessage(replyToken, flexMessage);
               } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
+            } else if (text === 'สินค้า') {
+              try {
+                const products = await Product.find().limit(10); // จำกัดที่ 10 รายการเพื่อไม่ให้ข้อมูลมากเกินไป
+
+                if (products.length === 0) {
+                  await client.replyMessage(replyToken, { type: 'text', text: 'ขออภัย ไม่พบรายการสินค้าในขณะนี้' });
+                  return;
+                }
+
+                const flexContents: FlexBubble[] = products.map((product: Product) => ({
+                  type: 'bubble',
+                  hero: {
+                    type: 'image',
+                    url: `https://backend.nattapad.me/api/v1/products/${product.productId}/image`,
+                    size: 'full',
+                    aspectRatio: '20:13',
+                    aspectMode: 'cover'
+                  },
+                  body: {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'text',
+                        text: product.name,
+                        weight: 'bold',
+                        size: 'md'
+                      },
+                      {
+                        type: 'box',
+                        layout: 'vertical',
+                        margin: 'lg',
+                        spacing: 'sm',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'baseline',
+                            spacing: 'sm',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: 'ราคา',
+                                color: '#aaaaaa',
+                                size: 'sm',
+                                flex: 1
+                              },
+                              {
+                                type: 'text',
+                                text: `${product.price} บาท`,
+                                wrap: true,
+                                color: '#666666',
+                                size: 'sm',
+                                flex: 5
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  footer: {
+                    type: 'box',
+                    layout: 'vertical',
+                    spacing: 'sm',
+                    contents: [
+                      {
+                        type: 'button',
+                        style: 'primary',
+                        height: 'sm',
+                        action: {
+                          type: 'postback',
+                          label: 'ดูรายละเอียด',
+                          data: `action=view_product&id=${product.productId}`
+                        }
+                      }
+                    ],
+                    flex: 0
+                  }
+                }));
+
+                const carouselContents: FlexCarousel = {
+                  type: 'carousel',
+                  contents: flexContents
+                };
+
+                const flexMessage: FlexMessage = {
+                  type: 'flex',
+                  altText: 'รายการสินค้า',
+                  contents: carouselContents
+                };
+
+                await client.replyMessage(replyToken, flexMessage);
+              } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:', error);
+                await client.replyMessage(replyToken, { type: 'text', text: 'ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า' });
               }
             } else {
               const replyMessage: TextMessage = {
