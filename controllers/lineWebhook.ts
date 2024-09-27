@@ -141,7 +141,7 @@ export const handleWebhook = async (body: any) => {
                         action: {
                           type: 'uri',
                           label: 'ดูแผนที่',
-                          uri: 'https://www.google.com/maps?q=13.7563,100.5018'
+                          uri: 'https://maps.app.goo.gl/jhRQogd9cSG3n8et5'
                         },
                         margin: 'md'
                       }
