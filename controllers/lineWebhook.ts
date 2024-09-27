@@ -158,7 +158,7 @@ export const handleWebhook = async (body: any) => {
               }
             } else if (text === 'สินค้า') {
               try {
-                const products = await Product.find().limit(10); // จำกัดที่ 10 รายการเพื่อไม่ให้ข้อมูลมากเกินไป
+                const products = await Product.find().limit(10);
 
                 if (products.length === 0) {
                   await client.replyMessage(replyToken, { type: 'text', text: 'ขออภัย ไม่พบรายการสินค้าในขณะนี้' });
@@ -182,37 +182,30 @@ export const handleWebhook = async (body: any) => {
                         type: 'text',
                         text: product.name,
                         weight: 'bold',
-                        size: 'md'
+                        size: 'xl',
+                        wrap: true
                       },
                       {
                         type: 'box',
-                        layout: 'vertical',
-                        margin: 'lg',
-                        spacing: 'sm',
+                        layout: 'baseline',
+                        margin: 'md',
                         contents: [
                           {
-                            type: 'box',
-                            layout: 'baseline',
-                            spacing: 'sm',
-                            contents: [
-                              {
-                                type: 'text',
-                                text: 'ราคา',
-                                color: '#aaaaaa',
-                                size: 'sm',
-                                flex: 1
-                              },
-                              {
-                                type: 'text',
-                                text: `${product.price} บาท`,
-                                wrap: true,
-                                color: '#666666',
-                                size: 'sm',
-                                flex: 5
-                              }
-                            ]
+                            type: 'text',
+                            text: `${product.price} บาท`,
+                            size: 'xl',
+                            color: '#1DB446',
+                            flex: 0
                           }
                         ]
+                      },
+                      {
+                        type: 'text',
+                        text: product.description || 'ไม่มีคำอธิบาย',
+                        size: 'sm',
+                        color: '#aaaaaa',
+                        wrap: true,
+                        margin: 'sm'
                       }
                     ]
                   },
@@ -224,15 +217,21 @@ export const handleWebhook = async (body: any) => {
                       {
                         type: 'button',
                         style: 'primary',
-                        height: 'sm',
+                        action: {
+                          type: 'postback',
+                          label: 'สั่งซื้อ',
+                          data: `action=order&id=${product.productId}`
+                        }
+                      },
+                      {
+                        type: 'button',
                         action: {
                           type: 'postback',
                           label: 'ดูรายละเอียด',
                           data: `action=view_product&id=${product.productId}`
                         }
                       }
-                    ],
-                    flex: 0
+                    ]
                   }
                 }));
 
