@@ -7,8 +7,7 @@ import {
   FlexBubble,
   FlexCarousel,
 } from "@line/bot-sdk";
-import { Product } from "~/models";
-import Order from "~/models/orderModel"; // แก้ไขการ import Order
+import { Product, Order, User } from "~/models";
 
 export const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -233,9 +232,9 @@ export const handleWebhook = async (body: any) => {
                           action: {
                             type: "uri",
                             label: "สั่งซื้อ",
-                            uri: `https://backend.nattapad.me/line/login`
-                          }
-                        }
+                            uri: `https://backend.nattapad.me/line/login`,
+                          },
+                        },
                       ],
                     },
                   })
@@ -260,106 +259,125 @@ export const handleWebhook = async (body: any) => {
                   text: "ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า",
                 });
               }
-            } else if (text === 'ติดต่อแอดมิน') {
+            } else if (text === "ติดต่อแอดมิน") {
               const flexMessage: FlexMessage = {
-                type: 'flex',
-                altText: 'ติดต่อแอดมิน',
+                type: "flex",
+                altText: "ติดต่อแอดมิน",
                 contents: {
-                  type: 'bubble',
+                  type: "bubble",
                   hero: {
-                    type: 'image',
-                    url: 'https://img2.pic.in.th/pic/1481932F-DC39-48BD-BD5B-9C79286183A6.jpg', // แทนที่ด้วย URL จริงของรูปแอดมิน
-                    size: 'full',
-                    aspectRatio: '20:13',
-                    aspectMode: 'cover'
+                    type: "image",
+                    url: "https://img2.pic.in.th/pic/1481932F-DC39-48BD-BD5B-9C79286183A6.jpg", // แทนที่ด้วย URL จริงของรูปแอดมิน
+                    size: "full",
+                    aspectRatio: "20:13",
+                    aspectMode: "cover",
                   },
                   body: {
-                    type: 'box',
-                    layout: 'vertical',
+                    type: "box",
+                    layout: "vertical",
                     contents: [
                       {
-                        type: 'text',
-                        text: 'Admin Phanuwat',
-                        weight: 'bold',
-                        size: 'xl',
-                        margin: 'md'
+                        type: "text",
+                        text: "Admin Phanuwat",
+                        weight: "bold",
+                        size: "xl",
+                        margin: "md",
                       },
                       {
-                        type: 'text',
-                        text: 'คุณสามารถติดต่อแอดมินได้ตามช่องทางด้านล่างนี้',
-                        size: 'sm',
-                        color: '#aaaaaa',
+                        type: "text",
+                        text: "คุณสามารถติดต่อแอดมินได้ตามช่องทางด้านล่างนี้",
+                        size: "sm",
+                        color: "#aaaaaa",
                         wrap: true,
-                        margin: 'sm'
+                        margin: "sm",
                       },
                       {
-                        type: 'separator',
-                        margin: 'xxl'
+                        type: "separator",
+                        margin: "xxl",
                       },
                       {
-                        type: 'box',
-                        layout: 'vertical',
-                        margin: 'xxl',
-                        spacing: 'sm',
+                        type: "box",
+                        layout: "vertical",
+                        margin: "xxl",
+                        spacing: "sm",
                         contents: [
                           {
-                            type: 'box',
-                            layout: 'horizontal',
+                            type: "box",
+                            layout: "horizontal",
                             contents: [
                               {
-                                type: 'text',
-                                text: 'โทรศัพท์:',
-                                size: 'sm',
-                                color: '#555555',
-                                flex: 0
+                                type: "text",
+                                text: "โทรศัพท์:",
+                                size: "sm",
+                                color: "#555555",
+                                flex: 0,
                               },
                               {
-                                type: 'text',
-                                text: '0656843458',
-                                size: 'sm',
-                                color: '#111111',
-                                align: 'end'
-                              }
-                            ]
+                                type: "text",
+                                text: "0656843458",
+                                size: "sm",
+                                color: "#111111",
+                                align: "end",
+                              },
+                            ],
                           },
-                        ]
-                      }
-                    ]
+                        ],
+                      },
+                    ],
                   },
                   footer: {
-                    type: 'box',
-                    layout: 'vertical',
-                    spacing: 'sm',
+                    type: "box",
+                    layout: "vertical",
+                    spacing: "sm",
                     contents: [
                       {
-                        type: 'button',
-                        style: 'link',
-                        height: 'sm',
+                        type: "button",
+                        style: "link",
+                        height: "sm",
                         action: {
-                          type: 'uri',
-                          label: 'ติดต่อทาง LINE',
-                          uri: 'https://line.me/ti/p/stZ9C78x7-'
-                        }
-                      }
+                          type: "uri",
+                          label: "ติดต่อทาง LINE",
+                          uri: "https://line.me/ti/p/stZ9C78x7-",
+                        },
+                      },
                     ],
-                    flex: 0
-                  }
-                }
+                    flex: 0,
+                  },
+                },
               };
 
               try {
                 await client.replyMessage(replyToken, flexMessage);
               } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+                console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
               }
             } else if (text === "ตรวจสอบสถานะ") {
               try {
-                // ดึงข้อมูลคำสั่งซื้อของลูกค้าที่มีสถานะไม่ใช่ "delivered" หรือ "cancel"
+                const user = await User.findOne({ lineId: userId });
+                if (!user) {
+                  await client.replyMessage(replyToken, {
+                    type: "text",
+                    text: "คุณยังไม่ได้ลงทะเบียนผู้ใช้งานระบบ",
+                  });
+                  return;
+                }
                 const orders = await Order.find({
-                  userId: userId,
-                  deliverStatus: { $nin: ["delivered", "cancel"] }
-                }).populate('products.product');
-
+                  userId: user?.userId,
+                  deliverStatus: { $nin: ["delivered", "cancel"] },
+                })
+                  .populate({
+                    path: "userId",
+                    select: "name email phone avatar address createdAt lat lng",
+                    localField: "userId",
+                    foreignField: "userId",
+                  })
+                  .populate({
+                    path: "products.productId",
+                    model: "Product",
+                    select: "name price imagePath",
+                    localField: "productId",
+                    foreignField: "productId",
+                  });
                 if (orders.length === 0) {
                   await client.replyMessage(replyToken, {
                     type: "text",
@@ -376,7 +394,7 @@ export const handleWebhook = async (body: any) => {
                     contents: [
                       {
                         type: "text",
-                        text: `คำสั่งซื้อ #${order._id}`,
+                        text: `คำสั่งซื้อ #${order.orderId}`,
                         weight: "bold",
                         size: "xl",
                       },
@@ -402,7 +420,7 @@ export const handleWebhook = async (body: any) => {
                           contents: [
                             {
                               type: "text",
-                              text: item.product.name,
+                              text: item.productId.name, // Access productId.name
                               size: "sm",
                               color: "#555555",
                               flex: 0,
