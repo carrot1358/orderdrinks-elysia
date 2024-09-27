@@ -79,7 +79,7 @@ export const handleWebhook = async (body: any) => {
                     contents: [
                       {
                         type: 'text',
-                        text: 'ข้อมูลโรงงาน',
+                        text: 'โรงงานภาณุวัฒน์Water',
                         weight: 'bold',
                         size: 'xl'
                       },
@@ -96,58 +96,14 @@ export const handleWebhook = async (body: any) => {
                             contents: [
                               {
                                 type: 'text',
-                                text: 'ชื่อ',
+                                text: 'เวลาทำการ',
                                 color: '#aaaaaa',
                                 size: 'sm',
                                 flex: 1
                               },
                               {
                                 type: 'text',
-                                text: 'โรงงานภาณุวัฒน์Water',
-                                wrap: true,
-                                color: '#666666',
-                                size: 'sm',
-                                flex: 5
-                              }
-                            ]
-                          },
-                          {
-                            type: 'box',
-                            layout: 'baseline',
-                            spacing: 'sm',
-                            contents: [
-                              {
-                                type: 'text',
-                                text: 'ที่อยู่',
-                                color: '#aaaaaa',
-                                size: 'sm',
-                                flex: 1
-                              },
-                              {
-                                type: 'text',
-                                text: '280 หมู่.3 ต.บึงเนียม อ.เมือง จ.ขอนแก่น 40000',
-                                wrap: true,
-                                color: '#666666',
-                                size: 'sm',
-                                flex: 5
-                              }
-                            ]
-                          },
-                          {
-                            type: 'box',
-                            layout: 'baseline',
-                            spacing: 'sm',
-                            contents: [
-                              {
-                                type: 'text',
-                                text: 'เบอร์โทร',
-                                color: '#aaaaaa',
-                                size: 'sm',
-                                flex: 1
-                              },
-                              {
-                                type: 'text',
-                                text: '081-545-268-1',
+                                text: '8.30-17.30',
                                 wrap: true,
                                 color: '#666666',
                                 size: 'sm',
@@ -156,6 +112,38 @@ export const handleWebhook = async (body: any) => {
                             ]
                           }
                         ]
+                      },
+                      {
+                        type: 'box',
+                        layout: 'baseline',
+                        spacing: 'sm',
+                        contents: [
+                          {
+                            type: 'text',
+                            text: 'โทร:',
+                            color: '#aaaaaa',
+                            size: 'sm',
+                            flex: 1
+                          },
+                          {
+                            type: 'text',
+                            text: '081-545-268-1',
+                            wrap: true,
+                            color: '#666666',
+                            size: 'sm',
+                            flex: 5
+                          }
+                        ]
+                      },
+                      {
+                        type: 'button',
+                        style: 'primary',
+                        action: {
+                          type: 'uri',
+                          label: 'ดูแผนที่',
+                          uri: 'https://www.google.com/maps?q=13.7563,100.5018'
+                        },
+                        margin: 'md'
                       }
                     ]
                   }
