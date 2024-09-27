@@ -1,4 +1,12 @@
-import { WebhookEvent, Client, middleware, TextMessage, FlexMessage, FlexBubble, FlexCarousel } from "@line/bot-sdk";
+import {
+  WebhookEvent,
+  Client,
+  middleware,
+  TextMessage,
+  FlexMessage,
+  FlexBubble,
+  FlexCarousel,
+} from "@line/bot-sdk";
 import { Product } from "~/models";
 
 export const config = {
@@ -17,7 +25,7 @@ const client = new Client(config);
 export const handleWebhook = async (body: any) => {
   try {
     console.log("Received webhook payload:", body);
-  
+
     if (body && "events" in body && Array.isArray(body.events)) {
       const events: WebhookEvent[] = body.events;
 
@@ -32,235 +40,243 @@ export const handleWebhook = async (body: any) => {
 
             if (text === "ข้อมูล") {
               const quickReplyMessage: TextMessage = {
-                type: 'text',
-                text: 'กรุณาเลือกรายการ',
+                type: "text",
+                text: "กรุณาเลือกรายการ",
                 quickReply: {
                   items: [
                     {
-                      type: 'action',
+                      type: "action",
                       action: {
-                        type: 'message',
-                        label: 'รายการสินค้า',
-                        text: 'สินค้า'
-                      }
+                        type: "message",
+                        label: "รายการสินค้า",
+                        text: "สินค้า",
+                      },
                     },
                     {
-                      type: 'action',
+                      type: "action",
                       action: {
-                        type: 'message',
-                        label: 'ข้อมูลโรงงาน',
-                        text: 'ข้อมูลโรงงาน'
-                      }
-                    }
-                  ]
-                }
+                        type: "message",
+                        label: "ข้อมูลโรงงาน",
+                        text: "ข้อมูลโรงงาน",
+                      },
+                    },
+                  ],
+                },
               };
 
               try {
                 await client.replyMessage(replyToken, quickReplyMessage);
               } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+                console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
               }
-            } else if (text === 'ข้อมูลโรงงาน') {
+            } else if (text === "ข้อมูลโรงงาน") {
               const flexMessage: FlexMessage = {
-                type: 'flex',
-                altText: 'ข้อมูลโรงงาน',
+                type: "flex",
+                altText: "ข้อมูลโรงงาน",
                 contents: {
-                  type: 'bubble',
+                  type: "bubble",
                   hero: {
-                    type: 'image',
-                    url: 'https://img5.pic.in.th/file/secure-sv1/461045833_1902028550281385_86939055569419391_n.jpg',
-                    size: 'full',
-                    aspectRatio: '20:13',
-                    aspectMode: 'cover'
+                    type: "image",
+                    url: "https://img5.pic.in.th/file/secure-sv1/461045833_1902028550281385_86939055569419391_n.jpg",
+                    size: "full",
+                    aspectRatio: "20:13",
+                    aspectMode: "cover",
                   },
                   body: {
-                    type: 'box',
-                    layout: 'vertical',
+                    type: "box",
+                    layout: "vertical",
                     contents: [
                       {
-                        type: 'text',
-                        text: 'โรงงานภาณุวัฒน์Water',
-                        weight: 'bold',
-                        size: 'xl'
+                        type: "text",
+                        text: "โรงงานภาณุวัฒน์Water",
+                        weight: "bold",
+                        size: "xl",
                       },
                       {
-                        type: 'box',
-                        layout: 'vertical',
-                        margin: 'lg',
-                        spacing: 'sm',
+                        type: "box",
+                        layout: "vertical",
+                        margin: "lg",
+                        spacing: "sm",
                         contents: [
                           {
-                            type: 'box',
-                            layout: 'baseline',
-                            spacing: 'sm',
+                            type: "box",
+                            layout: "baseline",
+                            spacing: "sm",
                             contents: [
                               {
-                                type: 'text',
-                                text: 'เวลาทำการ',
-                                color: '#aaaaaa',
-                                size: 'sm',
-                                flex: 1
+                                type: "text",
+                                text: "เวลาทำการ",
+                                color: "#aaaaaa",
+                                size: "sm",
+                                flex: 1,
                               },
                               {
-                                type: 'text',
-                                text: '8.30-17.30',
+                                type: "text",
+                                text: "8.30-17.30",
                                 wrap: true,
-                                color: '#666666',
-                                size: 'sm',
-                                flex: 5
-                              }
-                            ]
-                          }
-                        ]
+                                color: "#666666",
+                                size: "sm",
+                                flex: 5,
+                              },
+                            ],
+                          },
+                        ],
                       },
                       {
-                        type: 'box',
-                        layout: 'baseline',
-                        spacing: 'sm',
+                        type: "box",
+                        layout: "baseline",
+                        spacing: "sm",
                         contents: [
                           {
-                            type: 'text',
-                            text: 'โทร:',
-                            color: '#aaaaaa',
-                            size: 'sm',
-                            flex: 1
+                            type: "text",
+                            text: "โทร:",
+                            color: "#aaaaaa",
+                            size: "sm",
+                            flex: 1,
                           },
                           {
-                            type: 'text',
-                            text: '081-545-268-1',
+                            type: "text",
+                            text: "081-545-268-1",
                             wrap: true,
-                            color: '#666666',
-                            size: 'sm',
-                            flex: 5
-                          }
-                        ]
+                            color: "#666666",
+                            size: "sm",
+                            flex: 5,
+                          },
+                        ],
                       },
                       {
-                        type: 'button',
-                        style: 'primary',
+                        type: "button",
+                        style: "primary",
                         action: {
-                          type: 'uri',
-                          label: 'ดูแผนที่',
-                          uri: 'https://maps.app.goo.gl/jhRQogd9cSG3n8et5'
+                          type: "uri",
+                          label: "ดูแผนที่",
+                          uri: "https://maps.app.goo.gl/jhRQogd9cSG3n8et5",
                         },
-                        margin: 'md'
-                      }
-                    ]
-                  }
-                }
+                        margin: "md",
+                      },
+                    ],
+                  },
+                },
               };
 
               try {
                 await client.replyMessage(replyToken, flexMessage);
               } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+                console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
               }
-            } else if (text === 'สินค้า') {
+            } else if (text === "สินค้า") {
               try {
                 const products = await Product.find().limit(10);
 
                 if (products.length === 0) {
-                  await client.replyMessage(replyToken, { type: 'text', text: 'ขออภัย ไม่พบรายการสินค้าในขณะนี้' });
+                  await client.replyMessage(replyToken, {
+                    type: "text",
+                    text: "ขออภัย ไม่พบรายการสินค้าในขณะนี้",
+                  });
                   return;
                 }
 
-                const flexContents: FlexBubble[] = products.map((product: Product) => ({
-                  type: 'bubble',
-                  hero: {
-                    type: 'image',
-                    url: `https://backend.nattapad.me/api/v1/products/${product.productId}/image`,
-                    size: 'full',
-                    aspectRatio: '20:13',
-                    aspectMode: 'cover'
-                  },
-                  body: {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'text',
-                        text: product.name,
-                        weight: 'bold',
-                        size: 'xl',
-                        wrap: true
-                      },
-                      {
-                        type: 'box',
-                        layout: 'baseline',
-                        margin: 'md',
-                        contents: [
-                          {
-                            type: 'text',
-                            text: `${product.price} บาท`,
-                            size: 'xl',
-                            color: '#1DB446',
-                            flex: 0
-                          }
-                        ]
-                      },
-                      {
-                        type: 'text',
-                        text: product.description || 'ไม่มีคำอธิบาย',
-                        size: 'sm',
-                        color: '#aaaaaa',
-                        wrap: true,
-                        margin: 'sm'
-                      }
-                    ]
-                  },
-                  footer: {
-                    type: 'box',
-                    layout: 'vertical',
-                    spacing: 'sm',
-                    contents: [
-                      {
-                        type: 'button',
-                        style: 'primary',
-                        action: {
-                          type: 'postback',
-                          label: 'สั่งซื้อ',
-                          data: `action=order&id=${product.productId}`
-                        }
-                      },
-                      {
-                        type: 'button',
-                        action: {
-                          type: 'postback',
-                          label: 'ดูรายละเอียด',
-                          data: `action=view_product&id=${product.productId}`
-                        }
-                      }
-                    ]
-                  }
-                }));
+                const flexContents: FlexBubble[] = products.map(
+                  (product: Product) => ({
+                    type: "bubble",
+                    hero: {
+                      type: "image",
+                      url: `https://backend.nattapad.me${product.imagePath}`,
+                      size: "full",
+                      aspectRatio: "20:13",
+                      aspectMode: "cover",
+                    },
+                    body: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: product.name,
+                          weight: "bold",
+                          size: "xl",
+                          wrap: true,
+                        },
+                        {
+                          type: "box",
+                          layout: "baseline",
+                          margin: "md",
+                          contents: [
+                            {
+                              type: "text",
+                              text: `${product.price} บาท`,
+                              size: "xl",
+                              color: "#1DB446",
+                              flex: 0,
+                            },
+                          ],
+                        },
+                        {
+                          type: "text",
+                          text: product.description || "ไม่มีคำอธิบาย",
+                          size: "sm",
+                          color: "#aaaaaa",
+                          wrap: true,
+                          margin: "sm",
+                        },
+                      ],
+                    },
+                    footer: {
+                      type: "box",
+                      layout: "vertical",
+                      spacing: "sm",
+                      contents: [
+                        {
+                          type: "button",
+                          style: "primary",
+                          action: {
+                            type: "postback",
+                            label: "สั่งซื้อ",
+                            data: `action=order&id=${product.productId}`,
+                          },
+                        },
+                        {
+                          type: "button",
+                          action: {
+                            type: "postback",
+                            label: "ดูรายละเอียด",
+                            data: `action=view_product&id=${product.productId}`,
+                          },
+                        },
+                      ],
+                    },
+                  })
+                );
 
                 const carouselContents: FlexCarousel = {
-                  type: 'carousel',
-                  contents: flexContents
+                  type: "carousel",
+                  contents: flexContents,
                 };
 
                 const flexMessage: FlexMessage = {
-                  type: 'flex',
-                  altText: 'รายการสินค้า',
-                  contents: carouselContents
+                  type: "flex",
+                  altText: "รายการสินค้า",
+                  contents: carouselContents,
                 };
 
                 await client.replyMessage(replyToken, flexMessage);
               } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:', error);
-                await client.replyMessage(replyToken, { type: 'text', text: 'ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า' });
+                console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error);
+                await client.replyMessage(replyToken, {
+                  type: "text",
+                  text: "ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า",
+                });
               }
             } else {
               const replyMessage: TextMessage = {
-                type: 'text',
-                text: `คุณได้ส่งข้อความ "${text}"`
+                type: "text",
+                text: `คุณได้ส่งข้อความ "${text}"`,
               };
 
               try {
                 await client.replyMessage(replyToken, replyMessage);
               } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+                console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
               }
             }
           }
