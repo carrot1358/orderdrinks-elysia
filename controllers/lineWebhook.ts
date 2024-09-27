@@ -8,6 +8,7 @@ import {
   FlexCarousel,
 } from "@line/bot-sdk";
 import { Product } from "~/models";
+import Order from "~/models/orderModel"; // แก้ไขการ import Order
 
 export const config = {
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -350,6 +351,105 @@ export const handleWebhook = async (body: any) => {
                 await client.replyMessage(replyToken, flexMessage);
               } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
+            } else if (text === "ตรวจสอบสถานะ") {
+              try {
+                // ดึงข้อมูลคำสั่งซื้อของลูกค้าที่มีสถานะไม่ใช่ "delivered" หรือ "cancel"
+                const orders = await Order.find({
+                  userId: userId,
+                  deliverStatus: { $nin: ["delivered", "cancel"] }
+                }).populate('products.product');
+
+                if (orders.length === 0) {
+                  await client.replyMessage(replyToken, {
+                    type: "text",
+                    text: "คุณไม่มีคำสั่งซื้อที่กำลังดำเนินการอยู่",
+                  });
+                  return;
+                }
+
+                const flexContents: FlexBubble[] = orders.map((order: any) => ({
+                  type: "bubble",
+                  body: {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "text",
+                        text: `คำสั่งซื้อ #${order._id}`,
+                        weight: "bold",
+                        size: "xl",
+                      },
+                      {
+                        type: "text",
+                        text: `สถานะ: ${order.deliverStatus}`,
+                        size: "md",
+                        color: "#1DB446",
+                        margin: "md",
+                      },
+                      {
+                        type: "separator",
+                        margin: "xl",
+                      },
+                      {
+                        type: "box",
+                        layout: "vertical",
+                        margin: "xl",
+                        spacing: "sm",
+                        contents: order.products.map((item: any) => ({
+                          type: "box",
+                          layout: "horizontal",
+                          contents: [
+                            {
+                              type: "text",
+                              text: item.product.name,
+                              size: "sm",
+                              color: "#555555",
+                              flex: 0,
+                            },
+                            {
+                              type: "text",
+                              text: `x${item.quantity}`,
+                              size: "sm",
+                              color: "#111111",
+                              align: "end",
+                            },
+                          ],
+                        })),
+                      },
+                      {
+                        type: "separator",
+                        margin: "xl",
+                      },
+                      {
+                        type: "text",
+                        text: `ราคารวม: ${order.totalAmount} บาท`,
+                        size: "lg",
+                        weight: "bold",
+                        margin: "xl",
+                      },
+                    ],
+                  },
+                }));
+
+                const carouselContents: FlexCarousel = {
+                  type: "carousel",
+                  contents: flexContents,
+                };
+
+                const flexMessage: FlexMessage = {
+                  type: "flex",
+                  altText: "สถานะคำสั่งซื้อ",
+                  contents: carouselContents,
+                };
+
+                await client.replyMessage(replyToken, flexMessage);
+              } catch (error) {
+                console.error("เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ:", error);
+                await client.replyMessage(replyToken, {
+                  type: "text",
+                  text: "ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ",
+                });
               }
             } else {
               const replyMessage: TextMessage = {
