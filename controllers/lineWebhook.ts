@@ -267,6 +267,91 @@ export const handleWebhook = async (body: any) => {
                   text: "ขออภัย เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า",
                 });
               }
+            } else if (text === 'ติดต่อแอดมิน') {
+              const flexMessage: FlexMessage = {
+                type: 'flex',
+                altText: 'ติดต่อแอดมิน',
+                contents: {
+                  type: 'bubble',
+                  body: {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'text',
+                        text: 'Admin Phanuwat',
+                        weight: 'bold',
+                        size: 'xl',
+                        margin: 'md'
+                      },
+                      {
+                        type: 'text',
+                        text: 'คุณสามารถติดต่อแอดมินได้ตามช่องทางด้านล่างนี้',
+                        size: 'sm',
+                        color: '#aaaaaa',
+                        wrap: true,
+                        margin: 'sm'
+                      },
+                      {
+                        type: 'separator',
+                        margin: 'xxl'
+                      },
+                      {
+                        type: 'box',
+                        layout: 'vertical',
+                        margin: 'xxl',
+                        spacing: 'sm',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'horizontal',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: 'โทรศัพท์:',
+                                size: 'sm',
+                                color: '#555555',
+                                flex: 0
+                              },
+                              {
+                                type: 'text',
+                                text: '0656843458',
+                                size: 'sm',
+                                color: '#111111',
+                                align: 'end'
+                              }
+                            ]
+                          },
+                        ]
+                      }
+                    ]
+                  },
+                  footer: {
+                    type: 'box',
+                    layout: 'vertical',
+                    spacing: 'sm',
+                    contents: [
+                      {
+                        type: 'button',
+                        style: 'link',
+                        height: 'sm',
+                        action: {
+                          type: 'uri',
+                          label: 'ติดต่อทาง LINE',
+                          uri: 'https://line.me/ti/p/stZ9C78x7-'
+                        }
+                      }
+                    ],
+                    flex: 0
+                  }
+                }
+              };
+
+              try {
+                await client.replyMessage(replyToken, flexMessage);
+              } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการส่งข้อความ:', error);
+              }
             } else {
               const replyMessage: TextMessage = {
                 type: "text",
