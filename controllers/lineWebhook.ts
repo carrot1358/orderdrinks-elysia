@@ -257,6 +257,13 @@ export const handleWebhook = async (body: any) => {
                 altText: 'ติดต่อแอดมิน',
                 contents: {
                   type: 'bubble',
+                  hero: {
+                    type: 'image',
+                    url: 'https://img2.pic.in.th/pic/1481932F-DC39-48BD-BD5B-9C79286183A6.jpg', // แทนที่ด้วย URL จริงของรูปแอดมิน
+                    size: 'full',
+                    aspectRatio: '20:13',
+                    aspectMode: 'cover'
+                  },
                   body: {
                     type: 'box',
                     layout: 'vertical',
