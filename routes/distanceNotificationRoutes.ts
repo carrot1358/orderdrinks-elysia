@@ -10,7 +10,7 @@ import { driver } from "~/middlewares";
 const distanceNotificationRoutes = (app: Elysia) => {
   app.group("/api/v1/distance-notifications", (app) =>
     app
-      .get("/distance-notifications", getDistanceNotifications, {
+      .get("/", getDistanceNotifications, {
         beforeHandle: (c) => driver(c),
         detail: {
           tags: ["DistanceNotification"],
@@ -18,7 +18,7 @@ const distanceNotificationRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
-      .post("/distance-notifications", createDistanceNotification, {
+      .post("/", createDistanceNotification, {
         beforeHandle: (c) => driver(c),
         body: t.Object({
           distance: t.Number(),
@@ -29,7 +29,7 @@ const distanceNotificationRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
-      .put("/distance-notifications/:id", updateDistanceNotification, {
+      .put("/:id", updateDistanceNotification, {
         beforeHandle: (c) => driver(c),
         body: t.Object({
           distance: t.Number(),
@@ -40,7 +40,7 @@ const distanceNotificationRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
-      .delete("/distance-notifications/:id", deleteDistanceNotification, {
+      .delete("/:id", deleteDistanceNotification, {
         beforeHandle: (c) => driver(c),
         detail: {
           tags: ["DistanceNotification"],
