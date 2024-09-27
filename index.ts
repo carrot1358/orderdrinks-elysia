@@ -10,6 +10,7 @@ import {
   lineWebhookRoutes,
   filterReportRoutes,
   reportRoute,
+  distanceNotificationRoutes,
 } from "./routes";
 import { error, logger } from "./middlewares";
 import { connectDB } from "./config";
@@ -102,6 +103,9 @@ app.use(reportRoute);
 
 // Filter Report Routes
 app.use(filterReportRoutes);
+
+// Distance Notification Routes
+app.use(distanceNotificationRoutes);
 
 // Static Route for 'image' folder
 app.use(
