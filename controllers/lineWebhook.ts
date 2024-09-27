@@ -441,7 +441,7 @@ export const handleWebhook = async (body: any) => {
                       },
                       {
                         type: "text",
-                        text: `ราคารวม: ${order.totalAmount} บาท`,
+                        text: `ราคารวม: ${order.totalPrice} บาท`,
                         size: "lg",
                         weight: "bold",
                         margin: "xl",
