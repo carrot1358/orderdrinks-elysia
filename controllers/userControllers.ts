@@ -351,8 +351,13 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
   const requestingUser = await User.findOne({ userId: requestingUserId });
   if (
     !requestingUser ||
-    (requestingUser.role !== "admin" && requestingUser.userId !== c.params.id)
+    (requestingUser.role !== "admin" &&
+      requestingUser.role !== "driver" &&
+      requestingUser.userId !== c.params.id)
   ) {
+    if (requestingUser) {
+      console.log(requestingUser.role, requestingUser.userId, c.params.id);
+    }
     c.set.status = 403;
     throw new Error("ไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
   }
