@@ -20,6 +20,9 @@ const distanceNotificationRoutes = (app: Elysia) => {
       })
       .post("/distance-notifications", createDistanceNotification, {
         beforeHandle: (c) => driver(c),
+        body: t.Object({
+          distance: t.Number(),
+        }),
         detail: {
           tags: ["DistanceNotification"],
           summary: "สร้างการแจ้งเตือนระยะทางใหม่",
@@ -28,6 +31,9 @@ const distanceNotificationRoutes = (app: Elysia) => {
       })
       .put("/distance-notifications/:id", updateDistanceNotification, {
         beforeHandle: (c) => driver(c),
+        body: t.Object({
+          distance: t.Number(),
+        }),
         detail: {
           tags: ["DistanceNotification"],
           summary: "อัปเดตการแจ้งเตือนระยะทาง",
