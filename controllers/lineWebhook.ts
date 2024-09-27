@@ -230,19 +230,11 @@ export const handleWebhook = async (body: any) => {
                           type: "button",
                           style: "primary",
                           action: {
-                            type: "postback",
+                            type: "uri",
                             label: "สั่งซื้อ",
-                            data: `action=order&id=${product.productId}`,
-                          },
-                        },
-                        {
-                          type: "button",
-                          action: {
-                            type: "postback",
-                            label: "ดูรายละเอียด",
-                            data: `action=view_product&id=${product.productId}`,
-                          },
-                        },
+                            uri: `https://backend.nattapad.me/line/login`
+                          }
+                        }
                       ],
                     },
                   })
