@@ -45,6 +45,16 @@ export const handleDeviceMessage = (deviceid: string, message: any) => {
           frontendWs.send(JSON.stringify(message));
         });
         console.log(`ส่งข้อความไปยัง frontend ทั้งหมด:`, message);
+
+        const data = payload.body as Record<string, unknown>;
+        if (
+          "gpsStatus" in data &&
+          "latitude" in data &&
+          "longitude" in data &&
+          "deviceId" in data
+        ) {
+          updateDeviceLocation(deviceid, data);
+        }
       } else {
         console.log(
           `ข้อความไม่ได้ส่งถึง backend หรือไม่มี body จากอุปกรณ์ ${deviceid}:`,
