@@ -50,11 +50,11 @@ export const createDistanceNotification = async (c: Context) => {
 
 export const updateDistanceNotification = async (c: Context) => {
   try {
-    const { id } = c.params as any;
-    const { distance } = c.body as any;
-    const updatedNotification = await DistanceNotification.findByIdAndUpdate(
-      id,
-      { distance },
+    const { distance_old } = c.params as any;
+    const { distance_new } = c.body as any;
+    const updatedNotification = await DistanceNotification.findOneAndUpdate(
+      { distance: distance_old },
+      { distance: distance_new },
       { new: true }
     );
     if (!updatedNotification) {
@@ -80,10 +80,10 @@ export const updateDistanceNotification = async (c: Context) => {
 
 export const deleteDistanceNotification = async (c: Context) => {
   try {
-    const { id } = c.params as any;
-    const deletedNotification = await DistanceNotification.findByIdAndDelete(
-      id
-    );
+    const { distance } = c.params as any;
+    const deletedNotification = await DistanceNotification.findOneAndDelete({
+      distance,
+    });
     if (!deletedNotification) {
       c.set.status = 404;
       return {

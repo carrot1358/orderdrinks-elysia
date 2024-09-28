@@ -29,10 +29,11 @@ const distanceNotificationRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
-      .put("/:id", updateDistanceNotification, {
+      .put("/", updateDistanceNotification, {
         beforeHandle: (c) => driver(c),
         body: t.Object({
-          distance: t.Number(),
+          distance_old: t.Number(),
+          distance_new: t.Number(),
         }),
         detail: {
           tags: ["DistanceNotification"],
@@ -40,8 +41,11 @@ const distanceNotificationRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
-      .delete("/:id", deleteDistanceNotification, {
+      .delete("/", deleteDistanceNotification, {
         beforeHandle: (c) => driver(c),
+        body: t.Object({
+          distance: t.Number(),
+        }),
         detail: {
           tags: ["DistanceNotification"],
           summary: "ลบการแจ้งเตือนระยะทาง",
