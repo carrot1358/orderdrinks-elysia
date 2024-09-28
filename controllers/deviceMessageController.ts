@@ -238,7 +238,9 @@ async function updateDeviceLocation(deviceid: string, data: any) {
 
           console.log("distance", distance);
           console.log("-----------------------------------");
-          await Order.findOneAndUpdate(
+
+          // อัพเดทระยะทางในออเดอร์
+          const updatedOrder = await Order.findOneAndUpdate(
             { orderId: _order.orderId },
             { $set: { distance: distance } },
             { new: true, runValidators: true }
@@ -248,16 +250,20 @@ async function updateDeviceLocation(deviceid: string, data: any) {
             distance: -1,
           });
 
+          let notificationSent = false;
           for (const notification of notifications) {
-            if (distance <= notification.distance) {
-              // ตรวจสอบว่าเคยแจ้งเตือนระยะนี้แล้วหรือยัง
-              if (
-                !_order.notifiedDistances ||
-                !_order.notifiedDistances.includes(notification.distance)
-              ) {
+            if (updatedOrder !== null && distance <= notification.distance) {
+              // ตรวจสอบว่าระยะทางนี้น้อยกว่าระยะทางที่เคยแจ้งเตือนล่าสุดหรือไม่
+              const lastNotifiedDistance =
+                updatedOrder.notifiedDistances &&
+                updatedOrder.notifiedDistances.length > 0
+                  ? Math.min(...updatedOrder.notifiedDistances)
+                  : Infinity;
+
+              if (notification.distance < lastNotifiedDistance) {
                 await nearOrderNotification(_order.userId.lineId, distance);
                 console.log(
-                  `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร`
+                  `ส่งการแจ้งเตือนสำเร็จสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร (แจ้งเตือนที่ ${notification.distance} เมตร)`
                 );
 
                 // เพิ่มระยะทางที่แจ้งเตือนแล้วลงในฐานข้อมูล
@@ -266,9 +272,15 @@ async function updateDeviceLocation(deviceid: string, data: any) {
                   { $addToSet: { notifiedDistances: notification.distance } },
                   { new: true }
                 );
+                notificationSent = true;
+                break;
               }
-              break;
             }
+          }
+          if (!notificationSent) {
+            console.log(
+              `ไม่มีการแจ้งเตือนสำหรับคำสั่งซื้อ ID: ${_order.orderId} ระยะห่าง: ${distance} เมตร`
+            );
           }
         }
       }
