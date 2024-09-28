@@ -389,7 +389,7 @@ export const updateUser = async (c: Context<{ params: { id: string } }>) => {
   }
 
   if (role && isAdmin) {
-    if (requestingUser.role !== "admin") {
+    if (requestingUser.role !== "admin" && requestingUser.role !== "driver") {
       c.set.status = 403;
       throw new Error("คุณไม่มีสิทธิ์ในการอัปเดตบทบาทหรือสิทธิ์ผู้ดูแลระบบ");
     } else {
