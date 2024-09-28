@@ -79,7 +79,7 @@ export const updateDistanceNotification = async (c: Context) => {
 
 export const deleteDistanceNotification = async (c: Context) => {
   try {
-    const { distance } = c.params as any;
+    const { distance } = c.body as any;
     const deletedNotification = await DistanceNotification.findOneAndDelete({
       distance,
     });
