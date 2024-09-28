@@ -50,8 +50,7 @@ export const createDistanceNotification = async (c: Context) => {
 
 export const updateDistanceNotification = async (c: Context) => {
   try {
-    const { distance_old } = c.params as any;
-    const { distance_new } = c.body as any;
+    const { distance_old, distance_new } = c.body as any;
     const updatedNotification = await DistanceNotification.findOneAndUpdate(
       { distance: distance_old },
       { distance: distance_new },
