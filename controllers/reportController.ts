@@ -10,6 +10,7 @@ import {
 } from "~/models";
 import fs from "fs";
 import path from "path";
+import ExcelJS from "exceljs";
 
 // ฟังก์ชันสำหรับวาดตาราง (ใช้ร่วมกันทุกรายงาน)
 const drawTable = (
@@ -584,3 +585,137 @@ async function calculateRevenueStats(startDate: string, endDate: string) {
 
   return revenueStats;
 }
+
+export const generateExcelReport_Refill = async (c: Context) => {
+  try {
+    const filterRefills = await FilterRefill.find()
+      .sort({ date: -1 })
+      .limit(10);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Refill Report");
+
+    // กำหนดคอลัมน์
+    sheet.columns = [
+      { header: "วันที่", key: "date", width: 15 },
+      { header: "ไอโอดีน", key: "iodine", width: 10 },
+      { header: "คาร์บอน", key: "carbon", width: 10 },
+      { header: "เรซิ่น", key: "resin", width: 10 },
+      { header: "แมงกานีส", key: "manganese", width: 10 },
+      { header: "Soda ash", key: "sodaAsh", width: 10 },
+      { header: "อื่นๆ", key: "other", width: 20 },
+    ];
+
+    // เพิ่มข้อมูลลงในชีท
+    filterRefills.forEach((refill) => {
+      sheet.addRow({
+        date: refill.date.toLocaleDateString("th-TH"),
+        iodine: refill.iodine ? "เติม" : "ไม่เติม",
+        carbon: refill.carbon ? "เติม" : "ไม่เติม",
+        resin: refill.resin ? "เติม" : "ไม่เติม",
+        manganese: refill.manganese ? "เติม" : "ไม่เติม",
+        sodaAsh: refill.sodaAsh ? "เติม" : "ไม่เติม",
+        other: refill.other || "-",
+      });
+    });
+
+    // แปลง Excel เป็น buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    c.set.headers["Content-Type"] =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    c.set.headers["Content-Disposition"] =
+      "attachment; filename=refill_report.xlsx";
+    return buffer;
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการสร้างรายงาน Excel:", error);
+    return {
+      status: 500,
+      success: false,
+      message: "เกิดข้อผิดพลาดในการสร้างรายงาน Excel",
+    };
+  }
+};
+
+export const generateExcelReport_Cleaning = async (c: Context) => {
+  try {
+    const filterCleanings = await FilterCleaning.find()
+      .sort({ date: -1 })
+      .limit(10);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Cleaning Report");
+
+    // กำหนดคอลัมน์
+    sheet.columns = [
+      { header: "วันที่", key: "date", width: 15 },
+      { header: "สถานะการทำความสะอาด", key: "cleaned", width: 25 },
+    ];
+
+    // เพิ่มข้อมูลลงในชีท
+    filterCleanings.forEach((cleaning) => {
+      sheet.addRow({
+        date: cleaning.date.toLocaleDateString("th-TH"),
+        cleaned: cleaning.cleaned ? "ทำความสะอาดแล้ว" : "ยังไม่ได้ทำความสะอาด",
+      });
+    });
+
+    // แปลง Excel เป็น buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    c.set.headers["Content-Type"] =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    c.set.headers["Content-Disposition"] =
+      "attachment; filename=cleaning_report.xlsx";
+    return buffer;
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการสร้างรายงาน Excel:", error);
+    return {
+      status: 500,
+      success: false,
+      message: "เกิดข้อผิดพลาดในการสร้างรายงาน Excel",
+    };
+  }
+};
+
+export const generateExcelReport_Change = async (c: Context) => {
+  try {
+    const filterChanges = await FilterChange.find()
+      .sort({ date: -1 })
+      .limit(10);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Change Report");
+
+    // กำหนดคอลัมน์
+    sheet.columns = [
+      { header: "วันที่", key: "date", width: 15 },
+      { header: "ไส้กรองเล็ก", key: "smallFilter", width: 15 },
+      { header: "ไส้กรอง RO", key: "membraneFilter", width: 15 },
+      { header: "อื่นๆ", key: "other", width: 20 },
+    ];
+
+    // เพิ่มข้อมูลลงในชีท
+    filterChanges.forEach((change) => {
+      sheet.addRow({
+        date: change.date.toLocaleDateString("th-TH"),
+        smallFilter: change.smallFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
+        membraneFilter: change.membraneFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
+        other: change.other || "-",
+      });
+    });
+
+    // แปลง Excel เป็น buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    c.set.headers["Content-Type"] =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    c.set.headers["Content-Disposition"] =
+      "attachment; filename=change_report.xlsx";
+    return buffer;
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการสร้างรายงาน Excel:", error);
+    return {
+      status: 500,
+      success: false,
+      message: "เกิดข้อผิดพลาดในการสร้างรายงาน Excel",
+    };
+  }
+};

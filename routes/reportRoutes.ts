@@ -3,6 +3,9 @@ import {
   generatePDFReport_Refill,
   generatePDFReport_Change,
   generatePDFReport_Cleaning,
+  generateExcelReport_Refill,
+  generateExcelReport_Change,
+  generateExcelReport_Cleaning,
   getSalesStats,
   getUserStats,
   getFilterStats,
@@ -38,6 +41,33 @@ const reportRoutes = (app: Elysia) => {
           tags: ["Report"],
           summary: "สร้างรายงาน PDF",
           description: "สร้างรายงาน PDF สำหรับการล้างไส้กรอง",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .get("/generate-excel-change", generateExcelReport_Change, {
+        detail: {
+          tags: ["Report"],
+          summary: "สร้างรายงาน Excel",
+          description: "สร้างรายงาน Excel สำหรับการเปลี่ยนไส้กรอง",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .get("/generate-excel-refill", generateExcelReport_Refill, {
+        detail: {
+          tags: ["Report"],
+          summary: "สร้างรายงาน Excel",
+          description: "สร้างรายงาน Excel สำหรับการบำรุงรักษาเครื่องกรองน้ำ",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+
+      .get("/generate-excel-cleaning", generateExcelReport_Cleaning, {
+        detail: {
+          tags: ["Report"],
+          summary: "สร้างรายงาน Excel",
+          description: "สร้างรายงาน Excel สำหรับการล้างไส้กรอง",
           security: [{ bearerAuth: [] }],
         },
       })
