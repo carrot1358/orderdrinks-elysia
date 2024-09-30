@@ -645,53 +645,53 @@ export const prepareDelivery = async (c: Context) => {
     );
 
     // สร้างข้อมูลที่จะส่งไปยัง WebSocket
-    const preparedData = {
-      type: "prepare_delivery",
-      orders: pendingOrders.map((order: any) => ({
-        orderId: order.orderId,
-        userId: order.userId.userId,
-        userName: order.userId.name,
-        lineId: order.userId.lineId,
-        phone: order.userId.phone,
-        latitude: order.userId.lat,
-        longitude: order.userId.lng,
-        totalPrice: order.totalPrice,
-        products: order.products.map((product: any) => ({
-          name: product.productId.name,
-          quantity: product.quantity,
-          price: product.productId.price,
-        })),
-      })),
-    };
+    // const preparedData = {
+    //   type: "prepare_delivery",
+    //   orders: pendingOrders.map((order: any) => ({
+    //     orderId: order.orderId,
+    //     userId: order.userId.userId,
+    //     userName: order.userId.name,
+    //     lineId: order.userId.lineId,
+    //     phone: order.userId.phone,
+    //     latitude: order.userId.lat,
+    //     longitude: order.userId.lng,
+    //     totalPrice: order.totalPrice,
+    //     products: order.products.map((product: any) => ({
+    //       name: product.productId.name,
+    //       quantity: product.quantity,
+    //       price: product.productId.price,
+    //     })),
+    //   })),
+    // };
 
     // พิมพ์ข้อมูลออกมาดู
-    console.log("ข้อมูลที่จะส่งไปยัง WebSocket:");
-    console.log(JSON.stringify(preparedData, null, 2));
+    // console.log("ข้อมูลที่จะส่งไปยัง WebSocket:");
+    // console.log(JSON.stringify(preparedData, null, 2));
 
-    // ส่งข้อมูลไปยัง Raspberry Pi ผ่าน WebSocket
-    const deviceConnections = getDeviceConnections();
-    deviceConnections.forEach((ws: any) => {
-      ws.send(
-        JSON.stringify({
-          type: "prepare_delivery",
-          orders: pendingOrders.map((order: any) => ({
-            orderId: order.orderId,
-            userId: order.userId.userId,
-            userName: order.userId.name,
-            lineId: order.userId.lineId,
-            phone: order.userId.phone,
-            latitude: order.userId.lat,
-            longitude: order.userId.lng,
-            totalPrice: order.totalPrice,
-            products: order.products.map((product: any) => ({
-              name: product.productId.name,
-              quantity: product.quantity,
-              price: product.productId.price,
-            })),
-          })),
-        })
-      );
-    });
+    // // ส่งข้อมูลไปยัง Raspberry Pi ผ่าน WebSocket
+    // const deviceConnections = getDeviceConnections();
+    // deviceConnections.forEach((ws: any) => {
+    //   ws.send(
+    //     JSON.stringify({
+    //       type: "prepare_delivery",
+    //       orders: pendingOrders.map((order: any) => ({
+    //         orderId: order.orderId,
+    //         userId: order.userId.userId,
+    //         userName: order.userId.name,
+    //         lineId: order.userId.lineId,
+    //         phone: order.userId.phone,
+    //         latitude: order.userId.lat,
+    //         longitude: order.userId.lng,
+    //         totalPrice: order.totalPrice,
+    //         products: order.products.map((product: any) => ({
+    //           name: product.productId.name,
+    //           quantity: product.quantity,
+    //           price: product.productId.price,
+    //         })),
+    //       })),
+    //     })
+    //   );
+    // });
 
     return {
       success: true,
