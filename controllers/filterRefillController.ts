@@ -52,3 +52,20 @@ export const getFilterRefills = async (c: Context) => {
     message: "ดึงข้อมูลการเติมสารกรองสำเร็จ",
   };
 };
+
+export const deleteFilterRefill = async (c: Context) => {
+  const { id } = c.params as any;
+  const filterRefill = await FilterRefill.findByIdAndDelete(id);
+
+  if (!filterRefill) {
+    c.set.status = 404;
+    throw new Error("ไม่พบข้อมูลการเติมสารกรอง");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: filterRefill,
+    message: "ลบข้อมูลการเติมสารกรองสำเร็จ",
+  };
+};

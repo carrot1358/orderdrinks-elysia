@@ -46,3 +46,20 @@ export const getFilterChanges = async (c: Context) => {
     message: "ดึงข้อมูลการเปลี่ยนไส้กรองสำเร็จ",
   };
 };
+
+export const deleteFilterChange = async (c: Context) => {
+  const { id } = c.params as any;
+  const filterChange = await FilterChange.findByIdAndDelete(id);
+
+  if (!filterChange) {
+    c.set.status = 404;
+    throw new Error("ไม่พบข้อมูลการเปลี่ยนไส้กรอง");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: filterChange,
+    message: "ลบข้อมูลการเปลี่ยนไส้กรองสำเร็จ",
+  };
+};

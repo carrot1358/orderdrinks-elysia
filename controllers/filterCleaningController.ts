@@ -44,3 +44,20 @@ export const getFilterCleanings = async (c: Context) => {
     message: "ดึงข้อมูลการทำความสะอาดเครื่องกรองสำเร็จ",
   };
 };
+
+export const deleteFilterCleaning = async (c: Context) => {
+  const { id } = c.params as any;
+  const filterCleaning = await FilterCleaning.findByIdAndDelete(id);
+
+  if (!filterCleaning) {
+    c.set.status = 404;
+    throw new Error("ไม่พบข้อมูลการทำความสะอาดเครื่องกรอง");
+  }
+
+  return {
+    status: c.set.status,
+    success: true,
+    data: filterCleaning,
+    message: "ลบข้อมูลการทำความสะอาดเครื่องกรองสำเร็จ",
+  };
+};

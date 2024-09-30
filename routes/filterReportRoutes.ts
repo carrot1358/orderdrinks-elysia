@@ -2,14 +2,17 @@ import { Elysia, t } from "elysia";
 import {
   addFilterRefill,
   getFilterRefills,
+  deleteFilterRefill,
 } from "~/controllers/filterRefillController";
 import {
   addFilterChange,
   getFilterChanges,
+  deleteFilterChange,
 } from "~/controllers/filterChangeController";
 import {
   addFilterCleaning,
   getFilterCleanings,
+  deleteFilterCleaning,
 } from "~/controllers/filterCleaningController";
 import { admin, auth } from "~/middlewares";
 
@@ -43,6 +46,15 @@ const filterReportRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
+      .delete("/refill/:id", deleteFilterRefill, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ["Filter Report"],
+          summary: "ลบข้อมูลการเติมสารกรอง",
+          description: "ลบข้อมูลการเติมสารกรองน้ำตามไอดี",
+          security: [{ bearerAuth: [] }],
+        },
+      })
       .post("/change", addFilterChange, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -67,6 +79,15 @@ const filterReportRoutes = (app: Elysia) => {
           security: [{ bearerAuth: [] }],
         },
       })
+      .delete("/change/:id", deleteFilterChange, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ["Filter Report"],
+          summary: "ลบข้อมูลการเปลี่ยนไส้กรอง",
+          description: "ลบข้อมูลการเปลี่ยนไส้กรองน้ำตามไอดี",
+          security: [{ bearerAuth: [] }],
+        },
+      })
       .post("/cleaning", addFilterCleaning, {
         beforeHandle: (c) => admin(c),
         body: t.Object({
@@ -86,6 +107,15 @@ const filterReportRoutes = (app: Elysia) => {
           tags: ["Filter Report"],
           summary: "ดึงข้อมูลการทำความสะอาดเครื่องกรอง",
           description: "ดึงข้อมูลการทำความสะอาดเครื่องกรองน้ำทั้งหมด",
+          security: [{ bearerAuth: [] }],
+        },
+      })
+      .delete("/cleaning/:id", deleteFilterCleaning, {
+        beforeHandle: (c) => admin(c),
+        detail: {
+          tags: ["Filter Report"],
+          summary: "ลบข้อมูลการทำความสะอาดเครื่องกรอง",
+          description: "ลบข้อมูลการทำความสะอาดเครื่องกรองน้ำตามไอดี",
           security: [{ bearerAuth: [] }],
         },
       })
