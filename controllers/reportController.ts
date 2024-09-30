@@ -117,9 +117,20 @@ const drawTable = (
 
 export const generatePDFReport_Refill = async (c: Context) => {
   try {
-    const filterRefills = await FilterRefill.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterRefills = await FilterRefill.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
+
     const doc = new PDFDocument({
       size: "A4",
       margin: 50,
@@ -158,7 +169,7 @@ export const generatePDFReport_Refill = async (c: Context) => {
 
     // แปลงข้อมูลให้เหมาะสมกับตาราง
     const tableData = filterRefills.map((refill) => ({
-      วันที่: refill.date.toLocaleDateString("th-TH"),
+      วันที่: new Date(refill.date).toLocaleDateString("th-TH"),
       ไอโอดีน: refill.iodine ? "เติม" : "ไม่เติม",
       คาร์บอน: refill.carbon ? "เติม" : "ไม่เติม",
       เรซิ่น: refill.resin ? "เติม" : "ไม่เติม",
@@ -201,7 +212,17 @@ export const generatePDFReport_Refill = async (c: Context) => {
 
 export const generatePDFReport_Cleaning = async (c: Context) => {
   try {
-    const filterCleanings = await FilterCleaning.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterCleanings = await FilterCleaning.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
 
@@ -235,7 +256,7 @@ export const generatePDFReport_Cleaning = async (c: Context) => {
 
     // แปลงข้อมูลให้เหมาะสมกับตาราง
     const tableData = filterCleanings.map((cleaning) => ({
-      วันที่: cleaning.date.toLocaleDateString("th-TH"),
+      วันที่: new Date(cleaning.date).toLocaleDateString("th-TH"),
       สถานะการทำความสะอาด: cleaning.cleaned
         ? "ทำความสะอาดแล้ว"
         : "ยังไม่ได้ทำความสะอาด",
@@ -275,7 +296,17 @@ export const generatePDFReport_Cleaning = async (c: Context) => {
 
 export const generatePDFReport_Change = async (c: Context) => {
   try {
-    const filterChanges = await FilterChange.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterChanges = await FilterChange.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
 
@@ -307,7 +338,7 @@ export const generatePDFReport_Change = async (c: Context) => {
 
     // แปลงข้อมูลให้เหมาะสมกับตาราง
     const tableData = filterChanges.map((change) => ({
-      วันที่: change.date.toLocaleDateString("th-TH"),
+      วันที่: new Date(change.date).toLocaleDateString("th-TH"),
       ไส้กรองเล็ก: change.smallFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
       "ไส้กรอง RO": change.membraneFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
       อื่นๆ: change.other || "-",
@@ -588,7 +619,17 @@ async function calculateRevenueStats(startDate: string, endDate: string) {
 
 export const generateExcelReport_Refill = async (c: Context) => {
   try {
-    const filterRefills = await FilterRefill.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterRefills = await FilterRefill.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
 
@@ -609,7 +650,7 @@ export const generateExcelReport_Refill = async (c: Context) => {
     // เพิ่มข้อมูลลงในชีท
     filterRefills.forEach((refill) => {
       sheet.addRow({
-        date: refill.date.toLocaleDateString("th-TH"),
+        date: new Date(refill.date).toLocaleDateString("th-TH"),
         iodine: refill.iodine ? "เติม" : "ไม่เติม",
         carbon: refill.carbon ? "เติม" : "ไม่เติม",
         resin: refill.resin ? "เติม" : "ไม่เติม",
@@ -638,7 +679,17 @@ export const generateExcelReport_Refill = async (c: Context) => {
 
 export const generateExcelReport_Cleaning = async (c: Context) => {
   try {
-    const filterCleanings = await FilterCleaning.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterCleanings = await FilterCleaning.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
 
@@ -654,7 +705,7 @@ export const generateExcelReport_Cleaning = async (c: Context) => {
     // เพิ่มข้อมูลลงในชีท
     filterCleanings.forEach((cleaning) => {
       sheet.addRow({
-        date: cleaning.date.toLocaleDateString("th-TH"),
+        date: new Date(cleaning.date).toLocaleDateString("th-TH"),
         cleaned: cleaning.cleaned ? "ทำความสะอาดแล้ว" : "ยังไม่ได้ทำความสะอาด",
       });
     });
@@ -678,7 +729,17 @@ export const generateExcelReport_Cleaning = async (c: Context) => {
 
 export const generateExcelReport_Change = async (c: Context) => {
   try {
-    const filterChanges = await FilterChange.find()
+    const { startDate, endDate } = c.query as {
+      startDate?: string;
+      endDate?: string;
+    };
+
+    const filterChanges = await FilterChange.find({
+      date: {
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
+      },
+    })
       .sort({ date: -1 })
       .limit(10);
 
@@ -696,7 +757,7 @@ export const generateExcelReport_Change = async (c: Context) => {
     // เพิ่มข้อมูลลงในชีท
     filterChanges.forEach((change) => {
       sheet.addRow({
-        date: change.date.toLocaleDateString("th-TH"),
+        date: new Date(change.date).toLocaleDateString("th-TH"),
         smallFilter: change.smallFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
         membraneFilter: change.membraneFilter ? "เปลี่ยน" : "ไม่เปลี่ยน",
         other: change.other || "-",
