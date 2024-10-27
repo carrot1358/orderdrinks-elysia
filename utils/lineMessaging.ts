@@ -7,6 +7,36 @@ const client = new Client({
   channelAccessToken: Bun.env.LINE_CHANNEL_ACCESS_TOKEN || "",
 });
 
+// ฟังก์ชันสำหรับแปลงวิธีการชำระเงินเป็นภาษาไทย
+const translateMethodPaid = (method: string): string => {
+  switch (method) {
+    case "cash":
+      return "เงินสด";
+    case "promptpay":
+      return "พร้อมเพย์";
+    default:
+      return method; // คืนค่าตามเดิมถ้าไม่ตรง
+  }
+};
+
+// ฟังก์ชันสำหรับแปลงสถานะการชำระเงินเป็นภาษาไทย
+const translateStatusPaid = (status: string): string => {
+  switch (status) {
+    case "paid":
+      return "ชำระเงินแล้ว";
+    case "not_paid":
+      return "ยังไม่ชำระเงิน";
+    case "check_paid":
+      return "ตรวจสอบการชำระเงิน";
+    case "wait_paid":
+      return "รอการชำระเงิน";
+    case "error":
+      return "เกิดข้อผิดพลาด";
+    default:
+      return status; // คืนค่าตามเดิมถ้าไม่ตรง
+  }
+};
+
 export async function sendTextMessage(
   userId: string,
   message: string
@@ -182,7 +212,7 @@ export async function sendOrderNotification(
                 },
                 {
                   type: "text",
-                  text: order.methodPaid,
+                  text: translateMethodPaid(order.methodPaid),
                   size: "sm",
                   color: "#111111",
                   align: "end",
@@ -202,7 +232,7 @@ export async function sendOrderNotification(
                 },
                 {
                   type: "text",
-                  text: order.statusPaid,
+                  text: translateStatusPaid(order.statusPaid),
                   size: "sm",
                   color: "#111111",
                   align: "end",

@@ -22,6 +22,22 @@ console.log("Channel Secret:", config.channelSecret.substring(0, 5) + "...");
 
 const client = new Client(config);
 
+// ฟังก์ชันสำหรับแปลงสถานะเป็นภาษาไทย
+const translateOrderStatus = (status: string): string => {
+  switch (status) {
+    case "pending":
+      return "รอดำเนินการ";
+    case "delivering":
+      return "กำลังจัดส่ง";
+    case "delivered":
+      return "จัดส่งแล้ว";
+    case "cancel":
+      return "ยกเลิก";
+    default:
+      return status; // คืนค่าตามเดิมถ้าไม่ตรง
+  }
+};
+
 export const handleWebhook = async (body: any) => {
   try {
     console.log("Received webhook payload:", body);
@@ -407,7 +423,9 @@ export const handleWebhook = async (body: any) => {
                       },
                       {
                         type: "text",
-                        text: `สถานะ: ${order.deliverStatus}`,
+                        text: `สถานะ: ${translateOrderStatus(
+                          order.deliverStatus
+                        )}`,
                         size: "md",
                         color: "#1DB446",
                         margin: "md",
