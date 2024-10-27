@@ -394,9 +394,16 @@ export const handleWebhook = async (body: any) => {
                     contents: [
                       {
                         type: "text",
-                        text: `คำสั่งซื้อ #${order.orderId}`,
+                        text: `คำสั่งซื้อ`,
                         weight: "bold",
                         size: "sm",
+                      },
+                      {
+                        type: "text",
+                        text: `หมายเลขคำสั่งซื้อ: ${order.orderId}`,
+                        size: "xs",
+                        color: "#aaaaaa",
+                        margin: "md",
                       },
                       {
                         type: "text",
