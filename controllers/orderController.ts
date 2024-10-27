@@ -9,6 +9,7 @@ import path from "path";
 import FormData from "form-data";
 import { getDeviceConnections } from "~/utils/websocket";
 import { sendOrderNotification } from "~/utils/lineMessaging";
+import { format } from "date-fns";
 
 interface Order_Interface {
   userId: {
@@ -75,8 +76,27 @@ export const createOrder = async (c: Context) => {
     totalPrice += product.price * item.quantity;
   }
 
+  const generateOrderId = (): string => {
+    const timestamp = format(new Date(), "yyyyMMddHHmmss");
+    const randomPart = Math.random().toString(36).substr(2, 5).toUpperCase();
+    return `${timestamp}-${randomPart}`;
+  };
+
+  const generateUniqueOrderId = async (): Promise<string> => {
+    let orderId_generate: string = "";
+    let exists = true;
+    while (exists) {
+      orderId_generate = generateOrderId();
+      const existingOrder = await Order.findOne({ orderId: orderId_generate });
+      if (!existingOrder) {
+        exists = false;
+      }
+    }
+    return orderId_generate;
+  };
+
   const order = await Order.create({
-    orderId: crypto.randomUUID(),
+    orderId: await generateUniqueOrderId(),
     userId,
     products,
     totalPrice,
@@ -311,7 +331,7 @@ export const getOrderDelivery = async (c: Context) => {
 
   if (!orders || orders.length === 0) {
     c.set.status = 404;
-    throw new Error("ไม่พบคำสั่งซื้อที่กำลังจัดส่ง");
+    throw new Error("ไม่พบคำสั่งซื้อที่กำลังจั��ส่ง");
   }
 
   return {
@@ -644,7 +664,7 @@ export const prepareDelivery = async (c: Context) => {
       { new: true }
     );
 
-    // สร้างข้อมูลที่จะส่งไปยัง WebSocket
+    // สร้างข้อมูลที่จะสงไปยัง WebSocket
     // const preparedData = {
     //   type: "prepare_delivery",
     //   orders: pendingOrders.map((order: any) => ({
