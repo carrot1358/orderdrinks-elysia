@@ -10,6 +10,7 @@ import FormData from "form-data";
 import { getDeviceConnections } from "~/utils/websocket";
 import { sendOrderNotification } from "~/utils/lineMessaging";
 import { format } from "date-fns";
+import crypto from "crypto";
 
 interface Order_Interface {
   userId: {
@@ -331,7 +332,7 @@ export const getOrderDelivery = async (c: Context) => {
 
   if (!orders || orders.length === 0) {
     c.set.status = 404;
-    throw new Error("ไม่พบคำสั่งซื้อที่กำลังจั��ส่ง");
+    throw new Error("ไม่พบคำสั่งซื้อที่กำลังจัดส่ง");
   }
 
   return {
@@ -657,6 +658,49 @@ export const prepareDelivery = async (c: Context) => {
       return { success: false, message: "ไม่พบคำสั่งซื้อที่รอการจัดส่ง" };
     }
 
+    // สร้าง metadata สรุปรายการสินค้า
+    const deliveryMetadata = {
+      totalOrders: pendingOrders.length,
+      totalAmount: 0,
+      productSummary: new Map<
+        string,
+        {
+          name: string;
+          totalQuantity: number;
+          totalPrice: number;
+        }
+      >(),
+      deliveryLocations: new Set<string>(), // เก็บพื้นที่จัดส่งที่ไม่ซ้ำกัน
+      estimatedDeliveryTime: 0,
+    };
+
+    // วนลูปคำนวณ metadata
+    pendingOrders.forEach((order: any) => {
+      deliveryMetadata.totalAmount += order.totalPrice;
+
+      // เพิ่มพื้นที่จัดส่ง
+      if (order.userId?.address) {
+        deliveryMetadata.deliveryLocations.add(order.userId.address);
+      }
+
+      // รวมข้อมูลสินค้า
+      order.products.forEach((product: any) => {
+        const productId = product.productId._id.toString();
+        const existing = deliveryMetadata.productSummary.get(productId);
+
+        if (existing) {
+          existing.totalQuantity += product.quantity;
+          existing.totalPrice += product.quantity * product.productId.price;
+        } else {
+          deliveryMetadata.productSummary.set(productId, {
+            name: product.productId.name,
+            totalQuantity: product.quantity,
+            totalPrice: product.quantity * product.productId.price,
+          });
+        }
+      });
+    });
+
     // อัปเดตสถานะเป็น 'delivering'
     await Order.updateMany(
       { deliverStatus: "pending" },
@@ -664,62 +708,30 @@ export const prepareDelivery = async (c: Context) => {
       { new: true }
     );
 
-    // สร้างข้อมูลที่จะสงไปยัง WebSocket
-    // const preparedData = {
-    //   type: "prepare_delivery",
-    //   orders: pendingOrders.map((order: any) => ({
-    //     orderId: order.orderId,
-    //     userId: order.userId.userId,
-    //     userName: order.userId.name,
-    //     lineId: order.userId.lineId,
-    //     phone: order.userId.phone,
-    //     latitude: order.userId.lat,
-    //     longitude: order.userId.lng,
-    //     totalPrice: order.totalPrice,
-    //     products: order.products.map((product: any) => ({
-    //       name: product.productId.name,
-    //       quantity: product.quantity,
-    //       price: product.productId.price,
-    //     })),
-    //   })),
-    // };
-
-    // พิมพ์ข้อมูลออกมาดู
-    // console.log("ข้อมูลที่จะส่งไปยัง WebSocket:");
-    // console.log(JSON.stringify(preparedData, null, 2));
-
-    // // ส่งข้อมูลไปยัง Raspberry Pi ผ่าน WebSocket
-    // const deviceConnections = getDeviceConnections();
-    // deviceConnections.forEach((ws: any) => {
-    //   ws.send(
-    //     JSON.stringify({
-    //       type: "prepare_delivery",
-    //       orders: pendingOrders.map((order: any) => ({
-    //         orderId: order.orderId,
-    //         userId: order.userId.userId,
-    //         userName: order.userId.name,
-    //         lineId: order.userId.lineId,
-    //         phone: order.userId.phone,
-    //         latitude: order.userId.lat,
-    //         longitude: order.userId.lng,
-    //         totalPrice: order.totalPrice,
-    //         products: order.products.map((product: any) => ({
-    //           name: product.productId.name,
-    //           quantity: product.quantity,
-    //           price: product.productId.price,
-    //         })),
-    //       })),
-    //     })
-    //   );
-    // });
+    // แปลง Map และ Set เป็น Object ก่อนส่งกลับ
+    const formattedMetadata = {
+      ...deliveryMetadata,
+      productSummary: Object.fromEntries(deliveryMetadata.productSummary),
+      deliveryLocations: Array.from(deliveryMetadata.deliveryLocations),
+      timestamp: new Date().toISOString(),
+      batchId: crypto.randomUUID(), // สร้าง unique ID สำหรับชุดการจัดส่งนี้
+    };
 
     return {
       success: true,
       message: "เริ่มการจัดส่งสำเร็จ",
-      data: pendingOrders,
+      data: {
+        orders: pendingOrders,
+        metadata: formattedMetadata,
+      },
     };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("เกิดข้อผิดพลาดในการเตรียมการจัดส่ง:", error);
     c.set.status = 500;
-    return { success: false, message: "เกิดข้อผิดพลาดในการเตรียมการจัดส่ง" };
+    return {
+      success: false,
+      message: "เกิดข้อผิดพลาดในการเตรียมการจัดส่ง",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    };
   }
 };
