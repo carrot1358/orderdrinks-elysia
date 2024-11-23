@@ -22,6 +22,7 @@ import { User } from "~/models";
 import { createDefaultPayment } from "~/controllers";
 import cron from "node-cron";
 import { checkAndSendMaintenanceNotifications } from "./utils";
+import { seedDatabase } from "./utils/seed";
 
 // Create Elysia instance
 const app = new Elysia();
@@ -119,6 +120,25 @@ app.use(
 cron.schedule("0 0 * * *", async () => {
   console.log("กำลังตรวจสอบการบำรุงรักษา...");
   await checkAndSendMaintenanceNotifications();
+});
+
+app.get("/seed/:userCount?/:orderCount?", async ({ params, set }) => {
+  if (process.env.NODE_ENV === "development") {
+    const userCount = params.userCount ? parseInt(params.userCount) : 3;
+    const orderCount = params.orderCount ? parseInt(params.orderCount) : 10;
+    
+    const result = await seedDatabase(userCount, orderCount);
+    if (result) {
+      return { 
+        success: true, 
+        message: `เพิ่มข้อมูลเทียมสำเร็จ (ผู้ใช้: ${userCount} คน, ออเดอร์: ${orderCount} รายการ)` 
+      };
+    }
+    set.status = 500;
+    return { success: false, message: "เกิดข้อผิดพลาดในการเพิ่มข้อมูลเทียม" };
+  }
+  set.status = 403;
+  return { success: false, message: "ไม่อนุญาตให้ใช้งานในโหมด production" };
 });
 
 // Start the server

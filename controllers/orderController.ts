@@ -641,7 +641,7 @@ export const prepareDelivery = async (c: Context) => {
     })
       .populate({
         path: "userId",
-        select: "name lineId email phone avatarPath address latitude longitude",
+        select: "name lineId email phone avatarPath address lat lng",
         localField: "userId",
         foreignField: "userId",
       })
@@ -726,12 +726,17 @@ export const prepareDelivery = async (c: Context) => {
       },
     };
   } catch (error: any) {
-    console.error("เกิดข้อผิดพลาดในการเตรียมการจัดส่ง:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     c.set.status = 500;
     return {
       success: false,
       message: "เกิดข้อผิดพลาดในการเตรียมการจัดส่ง",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      details: process.env.NODE_ENV === "development" ? error.stack : undefined
     };
   }
 };
